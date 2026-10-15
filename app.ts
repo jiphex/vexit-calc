@@ -324,6 +324,27 @@ function performCalculation(mode: CalculationMode) {
     const includeExGratiaInput = document.getElementById('includeExGratia') as HTMLInputElement;
     const pensionAgeInput = document.getElementById('pensionAge') as HTMLInputElement;
 
+    // Validate required fields based on mode
+    if (!salaryInput.value || !yearsServiceInput.value) {
+        alert('Please enter salary and years of service');
+        return;
+    }
+
+    if ((mode === 'statutory' || mode === 'ukri2025') && !ageInput.value) {
+        alert('Please enter your age for this calculation');
+        return;
+    }
+
+    if (mode === 'ukri2025' && !pensionAgeInput.value) {
+        alert('Please enter your normal pension age for UKRI 2025 calculations');
+        return;
+    }
+
+    if (mode === 'standard' && includeExGratiaInput.checked && !schemeInput.value) {
+        alert('Please select your pension scheme for ex-gratia calculations');
+        return;
+    }
+
     const inputs: CalculationInputs = {
         salary: parseFloat(salaryInput.value),
         yearsService: parseFloat(yearsServiceInput.value),
