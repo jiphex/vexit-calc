@@ -210,6 +210,14 @@
                 <p style="margin-top: 5px; font-size: 14px;"><em>Note: Voluntary exit schemes typically do not include statutory redundancy pay as they are voluntary, not compulsory redundancies. Only check this if your specific scheme includes it.</em></p>
             </div>
 
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="includeExGratia">
+                    Include Ex-Gratia Payment
+                </label>
+                <p style="margin-top: 5px; font-size: 14px;"><em>Note: Ex-gratia payments are discretionary and vary significantly by department. Many schemes do not include them, or calculate them differently than shown here. Only check this if your scheme includes ex-gratia payments.</em></p>
+            </div>
+
             <button type="submit">Calculate Payment</button>
         </form>
 
@@ -223,7 +231,7 @@
                 <span class="result-label">Compensation Payment:</span>
                 <span class="result-value" id="compensationPayment">£0</span>
             </div>
-            <div class="result-row">
+            <div class="result-row" id="exGratiaRow" style="display: none;">
                 <span class="result-label">Ex-Gratia Payment:</span>
                 <span class="result-value" id="exGratia">£0</span>
             </div>
