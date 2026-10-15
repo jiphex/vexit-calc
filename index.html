@@ -252,15 +252,15 @@
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pensionable service (can include part years, e.g. 10.2500 for 10 years and 3 months).</p>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="ageGroup" style="display: none;">
                 <label for="age">Your Age</label>
-                <input type="number" id="age" required min="16" max="70" placeholder="45">
+                <input type="number" id="age" min="16" max="70" placeholder="45">
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your current age - used for statutory redundancy brackets and UKRI tapering calculations.</p>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="schemeGroup" style="display: none;">
                 <label for="scheme">Pension Scheme</label>
-                <select id="scheme" required>
+                <select id="scheme">
                     <option value="">Select scheme...</option>
                     <option value="alpha">Alpha (joined after 2015)</option>
                     <option value="nuvos">Nuvos (2007-2015)</option>

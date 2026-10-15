@@ -322,8 +322,8 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e: Event)
     const inputs: CalculationInputs = {
         salary: parseFloat(salaryInput.value),
         yearsService: parseFloat(yearsServiceInput.value),
-        age: parseInt(ageInput.value),
-        scheme: schemeInput.value,
+        age: ageInput.value ? parseInt(ageInput.value) : 0,
+        scheme: schemeInput.value || '',
         includeStatutory: includeStatutoryInput.checked,
         includeExGratia: includeExGratiaInput.checked,
         useUKRI2025: useUKRI2025Input.checked,
@@ -378,22 +378,62 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e: Event)
     }
 });
 
-// Handle UKRI 2025 checkbox changes
-document.getElementById('useUKRI2025')?.addEventListener('change', (e: Event) => {
-    const checkbox = e.target as HTMLInputElement;
+// Function to update field visibility based on selections
+function updateFieldVisibility() {
+    const includeStatutory = (document.getElementById('includeStatutory') as HTMLInputElement)?.checked || false;
+    const includeExGratia = (document.getElementById('includeExGratia') as HTMLInputElement)?.checked || false;
+    const useUKRI2025 = (document.getElementById('useUKRI2025') as HTMLInputElement)?.checked || false;
+    
+    const ageGroup = document.getElementById('ageGroup');
+    const ageInput = document.getElementById('age') as HTMLInputElement;
+    const schemeGroup = document.getElementById('schemeGroup');
+    const schemeInput = document.getElementById('scheme') as HTMLSelectElement;
     const pensionAgeGroup = document.getElementById('pensionAgeGroup');
     const pensionAgeInput = document.getElementById('pensionAge') as HTMLInputElement;
     
-    if (pensionAgeGroup) {
-        pensionAgeGroup.style.display = checkbox.checked ? 'block' : 'none';
+    // Age is needed for: statutory redundancy or UKRI 2025
+    const ageNeeded = includeStatutory || useUKRI2025;
+    if (ageGroup) {
+        ageGroup.style.display = ageNeeded ? 'block' : 'none';
+    }
+    if (ageInput) {
+        if (ageNeeded) {
+            ageInput.setAttribute('required', 'required');
+        } else {
+            ageInput.removeAttribute('required');
+        }
     }
     
-    // Make pension age required when UKRI is selected
+    // Scheme is needed for: ex-gratia only (not UKRI)
+    const schemeNeeded = includeExGratia && !useUKRI2025;
+    if (schemeGroup) {
+        schemeGroup.style.display = schemeNeeded ? 'block' : 'none';
+    }
+    if (schemeInput) {
+        if (schemeNeeded) {
+            schemeInput.setAttribute('required', 'required');
+        } else {
+            schemeInput.removeAttribute('required');
+        }
+    }
+    
+    // Pension age is needed for: UKRI 2025 only
+    if (pensionAgeGroup) {
+        pensionAgeGroup.style.display = useUKRI2025 ? 'block' : 'none';
+    }
     if (pensionAgeInput) {
-        if (checkbox.checked) {
+        if (useUKRI2025) {
             pensionAgeInput.setAttribute('required', 'required');
         } else {
             pensionAgeInput.removeAttribute('required');
         }
     }
-});
+}
+
+// Handle checkbox changes
+document.getElementById('includeStatutory')?.addEventListener('change', updateFieldVisibility);
+document.getElementById('includeExGratia')?.addEventListener('change', updateFieldVisibility);
+document.getElementById('useUKRI2025')?.addEventListener('change', updateFieldVisibility);
+
+// Initialize field visibility on page load
+updateFieldVisibility();
