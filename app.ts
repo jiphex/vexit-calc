@@ -377,12 +377,12 @@ function performCalculation(mode: CalculationMode) {
 
     if (statutoryRedundancyEl) statutoryRedundancyEl.textContent = formatCurrency(results.statutoryRedundancy);
     if (statutoryRowEl) {
-        statutoryRowEl.style.display = results.statutoryRedundancy > 0 ? 'flex' : 'none';
+        statutoryRowEl.style.display = results.statutoryRedundancy > 0 ? 'table-row' : 'none';
     }
     if (compensationPaymentEl) compensationPaymentEl.textContent = formatCurrency(results.compensationPayment);
     if (exGratiaEl) exGratiaEl.textContent = formatCurrency(results.exGratia);
     if (exGratiaRowEl) {
-        exGratiaRowEl.style.display = results.exGratia > 0 ? 'flex' : 'none';
+        exGratiaRowEl.style.display = results.exGratia > 0 ? 'table-row' : 'none';
     }
     if (totalPaymentEl) totalPaymentEl.textContent = formatCurrency(results.totalPayment);
     

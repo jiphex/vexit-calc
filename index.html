@@ -179,18 +179,31 @@
             line-height: 1.6;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
+        .results table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results th,
+        .results td {
+            padding: 12px;
+            text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
 
-        .result-row:last-child {
+        .results th {
+            font-weight: 500;
+        }
+
+        .results td {
+            text-align: right;
+        }
+
+        .results tr:last-child td,
+        .results tr:last-child th {
             border-bottom: none;
-            margin-top: 10px;
-            padding-top: 20px;
             border-top: 2px solid #0066cc;
+            padding-top: 20px;
             font-weight: bold;
             font-size: 18px;
         }
@@ -319,22 +332,26 @@
 
         <div class="results" id="results">
             <h2>Results</h2>
-            <div class="result-row" id="statutoryRow" style="display: none;">
-                <span class="result-label">Statutory Redundancy:</span>
-                <span class="result-value" id="statutoryRedundancy">£0</span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Compensation Payment:</span>
-                <span class="result-value" id="compensationPayment">£0</span>
-            </div>
-            <div class="result-row" id="exGratiaRow" style="display: none;">
-                <span class="result-label">Ex-Gratia Payment:</span>
-                <span class="result-value" id="exGratia">£0</span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Total Payment:</span>
-                <span class="result-value" id="totalPayment">£0</span>
-            </div>
+            <table>
+                <tbody>
+                    <tr id="statutoryRow" style="display: none;">
+                        <th>Statutory Redundancy:</th>
+                        <td id="statutoryRedundancy">£0</td>
+                    </tr>
+                    <tr>
+                        <th>Compensation Payment:</th>
+                        <td id="compensationPayment">£0</td>
+                    </tr>
+                    <tr id="exGratiaRow" style="display: none;">
+                        <th>Ex-Gratia Payment:</th>
+                        <td id="exGratia">£0</td>
+                    </tr>
+                    <tr>
+                        <th>Total Payment:</th>
+                        <td id="totalPayment">£0</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="workings" id="workings">
