@@ -189,23 +189,23 @@ class VexitCalculator {
      * Calculate total voluntary exit payment
      */
     calculate(inputs) {
-        const { salary, yearsService, age, scheme, includeStatutory, includeExGratia, useUKRI2025, pensionAge } = inputs;
+        const { salary, yearsService, age, scheme, includeExGratia, mode, pensionAge } = inputs;
         let statutory = { amount: 0, working: '' };
         let compensation = { amount: 0, working: '' };
         let exGratia = { amount: 0, working: '' };
-        if (useUKRI2025) {
+        if (mode === 'ukri2025') {
             // UKRI 2025 scheme replaces standard compensation
             if (!pensionAge) {
                 throw new Error('Pension age is required for UKRI 2025 calculations');
             }
             compensation = this.calculateUKRI2025(salary, yearsService, age, pensionAge);
-            // UKRI scheme doesn't include statutory or ex-gratia
+        }
+        else if (mode === 'statutory') {
+            // Statutory redundancy only
+            statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
         }
         else {
             // Standard scheme
-            if (includeStatutory) {
-                statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
-            }
             compensation = this.calculateCompensationPayment(salary, yearsService);
             if (includeExGratia) {
                 exGratia = this.calculateExGratia(salary, yearsService, scheme);
@@ -216,20 +216,28 @@ class VexitCalculator {
         if (statutory.working) {
             workings += statutory.working;
         }
-        workings += compensation.working;
+        if (compensation.working) {
+            workings += compensation.working;
+        }
         if (exGratia.working) {
             workings += exGratia.working;
         }
-        workings += '<div class="workings-section"><h3>Total Payment</h3>';
-        if (statutory.amount > 0) {
-            workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
+        // Only show total breakdown if there's more than one component
+        const componentCount = (statutory.amount > 0 ? 1 : 0) + (compensation.amount > 0 ? 1 : 0) + (exGratia.amount > 0 ? 1 : 0);
+        if (componentCount > 1) {
+            workings += '<div class="workings-section"><h3>Total Payment</h3>';
+            if (statutory.amount > 0) {
+                workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
+            }
+            if (compensation.amount > 0) {
+                workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
+            }
+            if (exGratia.amount > 0) {
+                workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
+            }
+            workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
+            workings += '</div>';
         }
-        workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
-        if (exGratia.amount > 0) {
-            workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
-        }
-        workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
-        workings += '</div>';
         return {
             statutoryRedundancy: statutory.amount,
             compensationPayment: compensation.amount,
@@ -250,25 +258,21 @@ function formatCurrency(amount) {
 }
 // Initialize calculator
 const calculator = new VexitCalculator();
-// Handle form submission
-document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
+// Common calculation function
+function performCalculation(mode) {
     const salaryInput = document.getElementById('salary');
     const yearsServiceInput = document.getElementById('yearsService');
     const ageInput = document.getElementById('age');
     const schemeInput = document.getElementById('scheme');
-    const includeStatutoryInput = document.getElementById('includeStatutory');
     const includeExGratiaInput = document.getElementById('includeExGratia');
-    const useUKRI2025Input = document.getElementById('useUKRI2025');
     const pensionAgeInput = document.getElementById('pensionAge');
     const inputs = {
         salary: parseFloat(salaryInput.value),
         yearsService: parseFloat(yearsServiceInput.value),
         age: ageInput.value ? parseInt(ageInput.value) : 0,
         scheme: schemeInput.value || '',
-        includeStatutory: includeStatutoryInput.checked,
-        includeExGratia: includeExGratiaInput.checked,
-        useUKRI2025: useUKRI2025Input.checked,
+        includeExGratia: includeExGratiaInput.checked && mode === 'standard',
+        mode: mode,
         pensionAge: pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined
     };
     const results = calculator.calculate(inputs);
@@ -285,14 +289,14 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
     if (statutoryRedundancyEl)
         statutoryRedundancyEl.textContent = formatCurrency(results.statutoryRedundancy);
     if (statutoryRowEl) {
-        statutoryRowEl.style.display = inputs.includeStatutory ? 'flex' : 'none';
+        statutoryRowEl.style.display = results.statutoryRedundancy > 0 ? 'flex' : 'none';
     }
     if (compensationPaymentEl)
         compensationPaymentEl.textContent = formatCurrency(results.compensationPayment);
     if (exGratiaEl)
         exGratiaEl.textContent = formatCurrency(results.exGratia);
     if (exGratiaRowEl) {
-        exGratiaRowEl.style.display = inputs.includeExGratia ? 'flex' : 'none';
+        exGratiaRowEl.style.display = results.exGratia > 0 ? 'flex' : 'none';
     }
     if (totalPaymentEl)
         totalPaymentEl.textContent = formatCurrency(results.totalPayment);
@@ -309,40 +313,31 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
     // Show/hide UKRI notice
     const ukriNoticeEl = document.getElementById('ukriNotice');
     if (ukriNoticeEl) {
-        if (inputs.useUKRI2025) {
+        if (mode === 'ukri2025') {
             ukriNoticeEl.classList.add('show');
         }
         else {
             ukriNoticeEl.classList.remove('show');
         }
     }
+}
+// Handle button clicks
+document.getElementById('calculateStandard')?.addEventListener('click', () => {
+    performCalculation('standard');
+});
+document.getElementById('calculateUKRI')?.addEventListener('click', () => {
+    performCalculation('ukri2025');
+});
+document.getElementById('calculateStatutory')?.addEventListener('click', () => {
+    performCalculation('statutory');
 });
 // Function to update field visibility based on selections
 function updateFieldVisibility() {
-    const includeStatutory = document.getElementById('includeStatutory')?.checked || false;
     const includeExGratia = document.getElementById('includeExGratia')?.checked || false;
-    const useUKRI2025 = document.getElementById('useUKRI2025')?.checked || false;
-    const ageGroup = document.getElementById('ageGroup');
-    const ageInput = document.getElementById('age');
     const schemeGroup = document.getElementById('schemeGroup');
     const schemeInput = document.getElementById('scheme');
-    const pensionAgeGroup = document.getElementById('pensionAgeGroup');
-    const pensionAgeInput = document.getElementById('pensionAge');
-    // Age is needed for: statutory redundancy or UKRI 2025
-    const ageNeeded = includeStatutory || useUKRI2025;
-    if (ageGroup) {
-        ageGroup.style.display = ageNeeded ? 'block' : 'none';
-    }
-    if (ageInput) {
-        if (ageNeeded) {
-            ageInput.setAttribute('required', 'required');
-        }
-        else {
-            ageInput.removeAttribute('required');
-        }
-    }
-    // Scheme is needed for: ex-gratia only (not UKRI)
-    const schemeNeeded = includeExGratia && !useUKRI2025;
+    // Scheme is needed for ex-gratia only
+    const schemeNeeded = includeExGratia;
     if (schemeGroup) {
         schemeGroup.style.display = schemeNeeded ? 'block' : 'none';
     }
@@ -354,22 +349,8 @@ function updateFieldVisibility() {
             schemeInput.removeAttribute('required');
         }
     }
-    // Pension age is needed for: UKRI 2025 only
-    if (pensionAgeGroup) {
-        pensionAgeGroup.style.display = useUKRI2025 ? 'block' : 'none';
-    }
-    if (pensionAgeInput) {
-        if (useUKRI2025) {
-            pensionAgeInput.setAttribute('required', 'required');
-        }
-        else {
-            pensionAgeInput.removeAttribute('required');
-        }
-    }
 }
 // Handle checkbox changes
-document.getElementById('includeStatutory')?.addEventListener('change', updateFieldVisibility);
 document.getElementById('includeExGratia')?.addEventListener('change', updateFieldVisibility);
-document.getElementById('useUKRI2025')?.addEventListener('change', updateFieldVisibility);
 // Initialize field visibility on page load
 updateFieldVisibility();
