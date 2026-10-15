@@ -133,69 +133,12 @@ class VexitCalculator {
         return { amount: finalAmount, working };
     }
     /**
-     * Calculate ex-gratia payment
-     * Additional discretionary payment based on scheme and circumstances
-     */
-    calculateExGratia(salary, yearsService, scheme) {
-        const monthlySalary = salary / 12;
-        // Ex-gratia varies by scheme and is often discretionary
-        // These are typical multipliers
-        let multiplier = 0;
-        let multiplierRate = 0;
-        let cap = 0;
-        let schemeName = '';
-        switch (scheme) {
-            case 'classic':
-                multiplierRate = 0.5;
-                cap = 6;
-                schemeName = 'Classic';
-                multiplier = Math.min(yearsService * multiplierRate, cap);
-                break;
-            case 'premium':
-                multiplierRate = 0.4;
-                cap = 5;
-                schemeName = 'Classic Plus / Premium';
-                multiplier = Math.min(yearsService * multiplierRate, cap);
-                break;
-            case 'nuvos':
-                multiplierRate = 0.3;
-                cap = 4;
-                schemeName = 'Nuvos';
-                multiplier = Math.min(yearsService * multiplierRate, cap);
-                break;
-            case 'alpha':
-                multiplierRate = 0.25;
-                cap = 3;
-                schemeName = 'Alpha';
-                multiplier = Math.min(yearsService * multiplierRate, cap);
-                break;
-            default:
-                multiplier = 0;
-        }
-        let working = '<div class="workings-section"><h3>Ex-Gratia Payment</h3>';
-        working += '<p><strong style="color: #dc3545;">⚠️ Warning: These multipliers are illustrative only and NOT based on official figures.</strong></p>';
-        working += `<p>Pension scheme: ${schemeName}</p>`;
-        working += `<p>Monthly salary: £${monthlySalary.toFixed(2)}</p>`;
-        working += `<p>Years of service: ${yearsService.toFixed(4)}</p>`;
-        working += `<p>Illustrative multiplier rate: ${multiplierRate} months per year (capped at ${cap} months)</p>`;
-        const uncappedMultiplier = yearsService * multiplierRate;
-        working += `<p><br><strong>Calculation:</strong></p>`;
-        working += `<p>${yearsService.toFixed(1)} years × ${multiplierRate} = ${uncappedMultiplier.toFixed(2)} months</p>`;
-        if (uncappedMultiplier > cap) {
-            working += `<p>Capped at: ${cap} months</p>`;
-        }
-        working += `<p>£${monthlySalary.toFixed(2)} × ${multiplier.toFixed(2)} = £${(monthlySalary * multiplier).toFixed(2)}</p>`;
-        working += '</div>';
-        return { amount: monthlySalary * multiplier, working };
-    }
-    /**
      * Calculate total voluntary exit payment
      */
     calculate(inputs) {
-        const { salary, yearsService, age, scheme, includeExGratia, mode, pensionAge } = inputs;
+        const { salary, yearsService, age, mode, pensionAge } = inputs;
         let statutory = { amount: 0, working: '' };
         let compensation = { amount: 0, working: '' };
-        let exGratia = { amount: 0, working: '' };
         if (mode === 'ukri2025') {
             // UKRI 2025 scheme replaces standard compensation
             if (!pensionAge) {
@@ -210,11 +153,8 @@ class VexitCalculator {
         else {
             // Standard scheme
             compensation = this.calculateCompensationPayment(salary, yearsService);
-            if (includeExGratia) {
-                exGratia = this.calculateExGratia(salary, yearsService, scheme);
-            }
         }
-        const totalPayment = statutory.amount + compensation.amount + exGratia.amount;
+        const totalPayment = statutory.amount + compensation.amount;
         let workings = '';
         if (statutory.working) {
             workings += statutory.working;
@@ -222,11 +162,8 @@ class VexitCalculator {
         if (compensation.working) {
             workings += compensation.working;
         }
-        if (exGratia.working) {
-            workings += exGratia.working;
-        }
         // Only show total breakdown if there's more than one component
-        const componentCount = (statutory.amount > 0 ? 1 : 0) + (compensation.amount > 0 ? 1 : 0) + (exGratia.amount > 0 ? 1 : 0);
+        const componentCount = (statutory.amount > 0 ? 1 : 0) + (compensation.amount > 0 ? 1 : 0);
         if (componentCount > 1) {
             workings += '<div class="workings-section"><h3>Total Payment</h3>';
             if (statutory.amount > 0) {
@@ -235,16 +172,12 @@ class VexitCalculator {
             if (compensation.amount > 0) {
                 workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
             }
-            if (exGratia.amount > 0) {
-                workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
-            }
             workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
             workings += '</div>';
         }
         return {
             statutoryRedundancy: statutory.amount,
             compensationPayment: compensation.amount,
-            exGratia: exGratia.amount,
             totalPayment,
             workings
         };
@@ -266,8 +199,6 @@ function performCalculation(mode) {
     const salaryInput = document.getElementById('salary');
     const yearsServiceInput = document.getElementById('yearsService');
     const ageInput = document.getElementById('age');
-    const schemeInput = document.getElementById('scheme');
-    const includeExGratiaInput = document.getElementById('includeExGratia');
     const pensionAgeInput = document.getElementById('pensionAge');
     // Validate required fields based on mode
     if (!salaryInput.value || !yearsServiceInput.value) {
@@ -282,16 +213,10 @@ function performCalculation(mode) {
         alert('Please enter your normal pension age for UKRI 2025 calculations');
         return;
     }
-    if (mode === 'standard' && includeExGratiaInput.checked && !schemeInput.value) {
-        alert('Please select your pension scheme for ex-gratia calculations');
-        return;
-    }
     const inputs = {
         salary: parseFloat(salaryInput.value),
         yearsService: parseFloat(yearsServiceInput.value),
         age: ageInput.value ? parseInt(ageInput.value) : 0,
-        scheme: schemeInput.value || '',
-        includeExGratia: includeExGratiaInput.checked && mode === 'standard',
         mode: mode,
         pensionAge: pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined
     };
@@ -300,8 +225,6 @@ function performCalculation(mode) {
     const statutoryRedundancyEl = document.getElementById('statutoryRedundancy');
     const statutoryRowEl = document.getElementById('statutoryRow');
     const compensationPaymentEl = document.getElementById('compensationPayment');
-    const exGratiaEl = document.getElementById('exGratia');
-    const exGratiaRowEl = document.getElementById('exGratiaRow');
     const totalPaymentEl = document.getElementById('totalPayment');
     const resultsEl = document.getElementById('results');
     const workingsEl = document.getElementById('workings');
@@ -313,11 +236,6 @@ function performCalculation(mode) {
     }
     if (compensationPaymentEl)
         compensationPaymentEl.textContent = formatCurrency(results.compensationPayment);
-    if (exGratiaEl)
-        exGratiaEl.textContent = formatCurrency(results.exGratia);
-    if (exGratiaRowEl) {
-        exGratiaRowEl.style.display = results.exGratia > 0 ? 'table-row' : 'none';
-    }
     if (totalPaymentEl)
         totalPaymentEl.textContent = formatCurrency(results.totalPayment);
     if (workingsContentEl) {
@@ -351,26 +269,3 @@ document.getElementById('calculateUKRI')?.addEventListener('click', () => {
 document.getElementById('calculateStatutory')?.addEventListener('click', () => {
     performCalculation('statutory');
 });
-// Function to update field visibility based on selections
-function updateFieldVisibility() {
-    const includeExGratia = document.getElementById('includeExGratia')?.checked || false;
-    const schemeGroup = document.getElementById('schemeGroup');
-    const schemeInput = document.getElementById('scheme');
-    // Scheme is needed for ex-gratia only
-    const schemeNeeded = includeExGratia;
-    if (schemeGroup) {
-        schemeGroup.style.display = schemeNeeded ? 'block' : 'none';
-    }
-    if (schemeInput) {
-        if (schemeNeeded) {
-            schemeInput.setAttribute('required', 'required');
-        }
-        else {
-            schemeInput.removeAttribute('required');
-        }
-    }
-}
-// Handle checkbox changes
-document.getElementById('includeExGratia')?.addEventListener('change', updateFieldVisibility);
-// Initialize field visibility on page load
-updateFieldVisibility();

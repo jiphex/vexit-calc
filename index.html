@@ -211,7 +211,7 @@
         .info-box {
             border-left: 4px solid #0066cc;
             padding: 16px 20px;
-            margin-top: 20px;
+            margin-top: 30px;
             background: #f0f7ff;
         }
 
@@ -292,17 +292,6 @@
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your current age - used for statutory redundancy brackets and UKRI tapering calculations.</p>
             </div>
 
-            <div class="form-group" id="schemeGroup" style="display: none;">
-                <label for="scheme">Pension Scheme</label>
-                <select id="scheme">
-                    <option value="">Select scheme...</option>
-                    <option value="alpha">Alpha (joined after 2015)</option>
-                    <option value="nuvos">Nuvos (2007-2015)</option>
-                    <option value="classic">Classic (pre-2007)</option>
-                    <option value="premium">Classic Plus / Premium</option>
-                </select>
-                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pension scheme - only affects ex-gratia calculations if enabled.</p>
-            </div>
 
             <div class="form-group">
                 <label for="pensionAge">Normal Pension Age</label>
@@ -311,23 +300,14 @@
             </div>
 
             <div class="form-group">
-                <label>
-                    <input type="checkbox" id="includeExGratia">
-                    Include Ex-Gratia Payment (Standard Terms only)
-                </label>
-                <p style="margin-top: 5px; font-size: 13px; color: #dc3545;"><strong>
-nda0
-nfe0f Warning:</strong> Ex-gratia calculations use illustrative multipliers that are NOT based on official figures. Actual ex-gratia payments are entirely discretionary and vary significantly by department. These figures should not be relied upon.</p>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
                 <button type="button" id="calculateStandard" style="flex: 1; min-width: 200px;">Calculate Standard Terms</button>
                 <button type="button" id="calculateUKRI" style="flex: 1; min-width: 200px; background: #28a745;">Calculate UKRI 2025 Terms</button>
                 <button type="button" id="calculateStatutory" style="flex: 1; min-width: 200px; background: #6c757d;">Calculate Statutory Redundancy Only</button>
             </div>
             
             <div style="margin-top: 10px; font-size: 13px; color: #666;">
-                <p><strong>Standard Terms:</strong> 1 month per year of service (max 21 months) + optional ex-gratia</p>
+                <p><strong>Standard Terms:</strong> 1 month per year of service (max 21 months)</p>
                 <p><strong>UKRI 2025 Terms:</strong> Age-tapered calculation with £95,000 cap</p>
                 <p><strong>Statutory Redundancy:</strong> Legal minimum based on age brackets</p>
             </div>
@@ -344,10 +324,6 @@ nfe0f Warning:</strong> Ex-gratia calculations use illustrative multipliers that
                     <tr>
                         <th>Compensation Payment:</th>
                         <td id="compensationPayment">£0</td>
-                    </tr>
-                    <tr id="exGratiaRow" style="display: none;">
-                        <th>Ex-Gratia Payment:</th>
-                        <td id="exGratia">£0</td>
                     </tr>
                     <tr>
                         <th>Total Payment:</th>
