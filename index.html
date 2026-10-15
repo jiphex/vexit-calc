@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Civil Service Voluntary Exit Calculator</title>
+    <title>UKRI/Civil Service Voluntary Exit Calculator</title>
     <style>
         * {
             margin: 0;
@@ -263,6 +263,7 @@
             <h2>⚠️ WARNING</h2>
             <p><strong>This calculator was written by AI and may contain errors.</strong></p>
             <p>Do not rely on these calculations for financial planning. Always verify with your HR department or official sources.</p>
+            <p>Payments are likely subject to be taxed, so please take this into account.</p>
             <p>An <a href="https://www.civilservicepensionscheme.org.uk/memberhub/knowledge-centre/tools-and-calcs/pension-calculators/">official calculator</a> is available from the Civil Service, but it is a confusing Excel spreadsheet with macros, which seems difficult to use.</p>
             <p style="margin-top: 10px;">If you find any issues or errors, please report them at: <a href="https://github.com/jiphex/vexit-calc/issues" target="_blank" style="color: #dc3545; text-decoration: underline;">GitHub Issues</a></p>
         </div>
@@ -333,7 +334,7 @@
                         <td id="compensationPayment">£0</td>
                     </tr>
                     <tr>
-                        <th>Total Payment:</th>
+                        <th>Total Payment <strong>(pre-tax)</strong>:</th>
                         <td id="totalPayment">£0</td>
                     </tr>
                 </tbody>
@@ -343,6 +344,7 @@
         <div class="workings" id="workings">
             <h2>Calculation Workings</h2>
             <div id="workingsContent"></div>
+            <div><strong>Payments will likely be subject to income tax. Please consider this before calculating your take-home payment.</strong></div>
         </div>
 
         <div class="ukri-notice" id="ukriNotice">
@@ -397,11 +399,9 @@
                 <li>Cabinet Office guidance on exits: <a href="https://www.gov.uk/government/organisations/cabinet-office" target="_blank">Cabinet Office</a></li>
             </ul>
             
-            <p><strong>Important:</strong> Ex-gratia payment calculations are illustrative only. Actual ex-gratia amounts are discretionary and vary significantly by department and individual circumstances. The multipliers used (0.25-0.5 months per year) are approximations based on historical schemes and may not reflect current terms.</p>
-            
             <p><strong>UKRI 2025 Scheme:</strong></p>
             <ul>
-                <li>Official STFC Voluntary Exit Scheme FAQs: <a href="https://ukri.sharepoint.com/sites/thesource-stfc/SitePages/STFC-Voluntary-Exit-Scheme-FAQs.aspx#terms-and-compensation-calculation" target="_blank">UKRI SharePoint - Terms and Compensation</a></li>
+                <li>2025 STFC Voluntary Exit Scheme FAQs: <a href="https://ukri.sharepoint.com/sites/thesource-stfc/SitePages/STFC-Voluntary-Exit-Scheme-FAQs.aspx#terms-and-compensation-calculation" target="_blank">UKRI SharePoint - Terms and Compensation</a></li>
                 <li>These terms apply specifically to UKRI staff (including MRC, Research Councils, UKAEA, and STFC)</li>
                 <li>The UKRI 2025 scheme overrides standard compensation calculations when selected</li>
             </ul>
