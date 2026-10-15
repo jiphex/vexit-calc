@@ -197,6 +197,10 @@
             <p>Do not rely on these calculations for financial planning. Always verify with your HR department or official sources.</p>
         </div>
 
+        <div class="info-box">
+            <p><strong>🔒 Privacy:</strong> This calculator runs entirely in your browser. No data is sent to any server. All calculations are performed locally on your computer, and nothing you enter leaves your device.</p>
+        </div>
+
         <h1>Voluntary Exit Calculator</h1>
         <p class="subtitle">Calculate your UK Civil Service Voluntary Exit Scheme payment</p>
 
@@ -204,16 +208,19 @@
             <div class="form-group">
                 <label for="salary">Annual Salary (£)</label>
                 <input type="number" id="salary" required min="0" step="0.01" placeholder="45000">
+                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your gross annual salary - used to calculate monthly salary for compensation payments.</p>
             </div>
 
             <div class="form-group">
                 <label for="yearsService">Years of Service</label>
                 <input type="number" id="yearsService" required min="0" max="50" step="0.0001" placeholder="10.2500">
+                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pensionable service (can include part years, e.g. 10.2500 for 10 years and 3 months).</p>
             </div>
 
             <div class="form-group">
                 <label for="age">Your Age</label>
                 <input type="number" id="age" required min="16" max="70" placeholder="45">
+                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your current age - used for statutory redundancy brackets and UKRI tapering calculations.</p>
             </div>
 
             <div class="form-group">
@@ -225,12 +232,13 @@
                     <option value="classic">Classic (pre-2007)</option>
                     <option value="premium">Classic Plus / Premium</option>
                 </select>
+                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pension scheme - only affects ex-gratia calculations if enabled. Not used for UKRI 2025 scheme.</p>
             </div>
 
             <div class="form-group" id="pensionAgeGroup" style="display: none;">
                 <label for="pensionAge">Normal Pension Age</label>
                 <input type="number" id="pensionAge" min="50" max="75" placeholder="e.g. 60">
-                <p style="margin-top: 5px; font-size: 14px;"><em>Required for UKRI 2025 scheme calculations. This is your normal pension age under your pension scheme rules.</em></p>
+                <p style="margin-top: 5px; font-size: 13px; color: #666;">Your normal pension age under your pension scheme rules - required for UKRI 2025 tapering calculations. The distance from your current age to this age determines the maximum compensation.</p>
             </div>
 
             <div class="form-group">
