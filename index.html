@@ -37,6 +37,11 @@
             margin-bottom: 5px;
         }
 
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
         input[type="number"],
         select {
             width: 100%;
@@ -197,12 +202,20 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="includeStatutory">
+                    Include Statutory Redundancy Payment
+                </label>
+                <p style="margin-top: 5px; font-size: 14px;"><em>Note: Voluntary exit schemes typically do not include statutory redundancy pay as they are voluntary, not compulsory redundancies. Only check this if your specific scheme includes it.</em></p>
+            </div>
+
             <button type="submit">Calculate Payment</button>
         </form>
 
         <div class="results" id="results">
             <h2>Results</h2>
-            <div class="result-row">
+            <div class="result-row" id="statutoryRow" style="display: none;">
                 <span class="result-label">Statutory Redundancy:</span>
                 <span class="result-value" id="statutoryRedundancy">£0</span>
             </div>
@@ -229,6 +242,8 @@
             <strong>Note:</strong> This calculator provides an estimate based on typical Civil Service Voluntary Exit Scheme rules. 
             Actual payments may vary based on your specific department's terms, pension scheme details, and individual circumstances. 
             Please consult with your HR department for an official calculation.
+            
+            <p style="margin-top: 10px;"><strong>About Statutory Redundancy:</strong> Voluntary exit schemes are typically <em>voluntary</em> arrangements, not compulsory redundancies. Therefore, statutory redundancy pay usually does not apply. Statutory redundancy is only payable for compulsory redundancies. The checkbox above allows you to include it if your specific scheme is structured as a compulsory redundancy with voluntary acceptance.</p>
         </div>
 
         <div class="info-box">

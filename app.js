@@ -141,14 +141,20 @@ class VexitCalculator {
      * Calculate total voluntary exit payment
      */
     calculate(inputs) {
-        const { salary, yearsService, age, scheme } = inputs;
-        const statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
+        const { salary, yearsService, age, scheme, includeStatutory } = inputs;
+        const statutory = includeStatutory ? this.calculateStatutoryRedundancy(salary, yearsService, age) : { amount: 0, working: '' };
         const compensation = this.calculateCompensationPayment(salary, yearsService);
         const exGratia = this.calculateExGratia(salary, yearsService, scheme);
         const totalPayment = statutory.amount + compensation.amount + exGratia.amount;
-        let workings = statutory.working + compensation.working + exGratia.working;
+        let workings = '';
+        if (includeStatutory) {
+            workings += statutory.working;
+        }
+        workings += compensation.working + exGratia.working;
         workings += '<div class="workings-section"><h3>Total Payment</h3>';
-        workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
+        if (includeStatutory) {
+            workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
+        }
         workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
         workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
         workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
@@ -180,15 +186,18 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
     const yearsServiceInput = document.getElementById('yearsService');
     const ageInput = document.getElementById('age');
     const schemeInput = document.getElementById('scheme');
+    const includeStatutoryInput = document.getElementById('includeStatutory');
     const inputs = {
         salary: parseFloat(salaryInput.value),
         yearsService: parseFloat(yearsServiceInput.value),
         age: parseInt(ageInput.value),
-        scheme: schemeInput.value
+        scheme: schemeInput.value,
+        includeStatutory: includeStatutoryInput.checked
     };
     const results = calculator.calculate(inputs);
     // Update UI with results
     const statutoryRedundancyEl = document.getElementById('statutoryRedundancy');
+    const statutoryRowEl = document.getElementById('statutoryRow');
     const compensationPaymentEl = document.getElementById('compensationPayment');
     const exGratiaEl = document.getElementById('exGratia');
     const totalPaymentEl = document.getElementById('totalPayment');
@@ -197,6 +206,9 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
     const workingsContentEl = document.getElementById('workingsContent');
     if (statutoryRedundancyEl)
         statutoryRedundancyEl.textContent = formatCurrency(results.statutoryRedundancy);
+    if (statutoryRowEl) {
+        statutoryRowEl.style.display = inputs.includeStatutory ? 'flex' : 'none';
+    }
     if (compensationPaymentEl)
         compensationPaymentEl.textContent = formatCurrency(results.compensationPayment);
     if (exGratiaEl)
