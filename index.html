@@ -12,20 +12,25 @@
         }
 
         body {
-            font-family: serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             background: white;
             color: black;
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
+            line-height: 1.6;
         }
 
         h1 {
             margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 600;
         }
 
         .subtitle {
             margin-bottom: 30px;
+            color: #666;
+            font-size: 16px;
         }
 
         .form-group {
@@ -34,7 +39,8 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
 
         input[type="checkbox"] {
@@ -43,10 +49,10 @@
         }
 
         .ukri-notice {
-            border: 2px solid black;
-            padding: 15px;
+            border-left: 4px solid #28a745;
+            padding: 16px 20px;
             margin-top: 10px;
-            background: white;
+            background: #f0fff4;
             display: none;
         }
 
@@ -55,7 +61,9 @@
         }
 
         .ukri-notice h4 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         .ukri-notice ul {
@@ -70,29 +78,48 @@
         input[type="number"],
         select {
             width: 100%;
-            padding: 8px;
-            border: 1px solid black;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
         }
 
         button {
-            padding: 10px 20px;
-            background: white;
-            color: black;
-            border: 1px solid black;
+            padding: 12px 24px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
             margin-top: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: inherit;
         }
 
         button:hover {
-            background: black;
-            color: white;
+            background: #0052a3;
+        }
+
+        button:active {
+            background: #004080;
         }
 
         .results {
             margin-top: 30px;
-            border: 1px solid black;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             padding: 20px;
             display: none;
+            background: #fafafa;
         }
 
         .results.show {
@@ -101,9 +128,11 @@
 
         .workings {
             margin-top: 30px;
-            border: 1px solid black;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             padding: 20px;
             display: none;
+            background: #fafafa;
         }
 
         .workings.show {
@@ -111,7 +140,9 @@
         }
 
         .workings h2 {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            font-size: 20px;
+            font-weight: 600;
         }
 
         .workings-section {
@@ -120,6 +151,7 @@
 
         .workings-section h3 {
             margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .workings-section p {
@@ -130,43 +162,47 @@
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid black;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .result-row:last-child {
             border-bottom: none;
             margin-top: 10px;
             padding-top: 20px;
-            border-top: 2px solid black;
+            border-top: 2px solid #0066cc;
             font-weight: bold;
+            font-size: 18px;
         }
 
         .info-box {
-            border: 1px solid black;
-            padding: 15px;
+            border-left: 4px solid #0066cc;
+            padding: 16px 20px;
             margin-top: 20px;
+            background: #f0f7ff;
         }
 
         .warning-box {
-            border: 3px solid black;
-            padding: 20px;
-            margin-bottom: 30px;
-            background: white;
+            border-left: 4px solid #dc3545;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            background: #fff5f5;
         }
 
         .warning-box h2 {
-            margin-bottom: 10px;
-            font-size: 24px;
+            margin-bottom: 8px;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .warning-box p {
-            margin: 5px 0;
-            line-height: 1.6;
+            margin: 6px 0;
         }
 
         .info-box h3 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         .info-box ul {
@@ -179,13 +215,12 @@
         }
 
         .info-box a {
-            color: black;
-            text-decoration: underline;
+            color: #0066cc;
+            text-decoration: none;
         }
 
         .info-box a:hover {
-            background: black;
-            color: white;
+            text-decoration: underline;
         }
     </style>
 </head>
