@@ -54,28 +54,24 @@ class VexitCalculator {
         working += '<p><br><strong>Weekly multipliers by age bracket:</strong></p>';
         
         let weeks = 0;
-        let currentAge = age;
-        let remainingYears = years;
         let weeksUnder22 = 0;
         let weeks22to40 = 0;
         let weeksOver40 = 0;
 
-        // Work backwards from current age
-        for (let i = 0; i < years && remainingYears > 0; i++) {
-            const yearAge = currentAge - i;
+        // Work backwards from current age through each year of service
+        for (let i = 0; i < years; i++) {
+            const ageInThisYear = age - i;
             
-            if (yearAge >= 41) {
+            if (ageInThisYear >= 41) {
                 weeks += 1.5;
                 weeksOver40 += 1.5;
-            } else if (yearAge >= 22) {
+            } else if (ageInThisYear >= 22) {
                 weeks += 1;
                 weeks22to40 += 1;
             } else {
                 weeks += 0.5;
                 weeksUnder22 += 0.5;
             }
-            
-            remainingYears--;
         }
 
         if (weeksUnder22 > 0) working += `<p>Under 22: ${weeksUnder22} weeks (0.5 weeks per year)</p>`;
@@ -146,12 +142,12 @@ class VexitCalculator {
         } else {
             // Below pension age: apply tapering
             const standardMax = 21;
-            const taperedMax = Math.round(monthsToPensionAge / 12) + 6; // Round part months
+            const taperedMax = Math.round(monthsToPensionAge) + 6; // Months to pension age + 6, rounded
             maxMonths = Math.min(standardMax, taperedMax);
             
             working += '<p><br><strong>Below pension age with tapering:</strong></p>';
             working += `<p>Standard maximum: ${standardMax} months</p>`;
-            working += `<p>Tapered maximum: (${(monthsToPensionAge / 12).toFixed(2)} months to pension age) + 6 = ${taperedMax} months</p>`;
+            working += `<p>Tapered maximum: ${monthsToPensionAge.toFixed(1)} months to pension age + 6 = ${taperedMax} months</p>`;
             working += `<p>Applied maximum: ${maxMonths} months (lesser of the two)</p>`;
         }
         
@@ -222,11 +218,12 @@ class VexitCalculator {
         }
         
         let working = '<div class="workings-section"><h3>Ex-Gratia Payment</h3>';
+        working += '<p><strong style="color: #dc3545;">⚠️ Warning: These multipliers are illustrative only and NOT based on official figures.</strong></p>';
         working += `<p>Pension scheme: ${schemeName}</p>`;
         working += `<p>Monthly salary: £${monthlySalary.toFixed(2)}</p>`;
         working += `<p>Years of service: ${yearsService.toFixed(4)}</p>`;
         
-        working += `<p>Multiplier rate: ${multiplierRate} months per year (capped at ${cap} months)</p>`;
+        working += `<p>Illustrative multiplier rate: ${multiplierRate} months per year (capped at ${cap} months)</p>`;
         
         const uncappedMultiplier = yearsService * multiplierRate;
         working += `<p><br><strong>Calculation:</strong></p>`;
