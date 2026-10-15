@@ -1,0 +1,22 @@
+{
+  "name": "vexit-calc",
+  "version": "1.0.0",
+  "description": "UK Civil Service Voluntary Exit Scheme Calculator",
+  "main": "app.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "civil-service",
+    "calculator",
+    "voluntary-exit",
+    "redundancy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
