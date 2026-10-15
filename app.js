@@ -17,7 +17,7 @@ class VexitCalculator {
         const weeklyPay = Math.min(actualWeeklyPay, this.WEEKLY_PAY_CAP);
         const wholeYears = Math.floor(yearsService); // Statutory redundancy only counts whole years
         const years = Math.min(wholeYears, this.MAX_REDUNDANCY_YEARS);
-        let working = '<div class="workings-section"><h3>1. Statutory Redundancy</h3>';
+        let working = '<div class="workings-section"><h3>Statutory Redundancy</h3>';
         working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
         working += `<p>Weekly pay: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)}</p>`;
         if (actualWeeklyPay > this.WEEKLY_PAY_CAP) {
@@ -74,7 +74,7 @@ class VexitCalculator {
     calculateCompensationPayment(salary, yearsService) {
         const monthlySalary = salary / 12;
         const cappedYears = Math.min(yearsService, 21); // Usually capped at 21 years
-        let working = '<div class="workings-section"><h3>2. Compensation Payment</h3>';
+        let working = '<div class="workings-section"><h3>Compensation Payment</h3>';
         working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
         working += `<p>Monthly salary: £${salary.toFixed(2)} ÷ 12 = £${monthlySalary.toFixed(2)}</p>`;
         working += `<p>Years of service: ${yearsService.toFixed(4)}</p>`;
@@ -175,7 +175,7 @@ class VexitCalculator {
             default:
                 multiplier = 0;
         }
-        let working = '<div class="workings-section"><h3>3. Ex-Gratia Payment</h3>';
+        let working = '<div class="workings-section"><h3>Ex-Gratia Payment</h3>';
         working += `<p>Pension scheme: ${schemeName}</p>`;
         working += `<p>Monthly salary: £${monthlySalary.toFixed(2)}</p>`;
         working += `<p>Years of service: ${yearsService.toFixed(4)}</p>`;
