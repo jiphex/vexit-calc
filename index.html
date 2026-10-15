@@ -42,6 +42,31 @@
             margin-right: 8px;
         }
 
+        .ukri-notice {
+            border: 2px solid black;
+            padding: 15px;
+            margin-top: 10px;
+            background: white;
+            display: none;
+        }
+
+        .ukri-notice.show {
+            display: block;
+        }
+
+        .ukri-notice h4 {
+            margin-bottom: 10px;
+        }
+
+        .ukri-notice ul {
+            margin: 10px 0 10px 20px;
+        }
+
+        .ukri-notice li {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
         input[type="number"],
         select {
             width: 100%;
@@ -202,6 +227,12 @@
                 </select>
             </div>
 
+            <div class="form-group" id="pensionAgeGroup" style="display: none;">
+                <label for="pensionAge">Normal Pension Age</label>
+                <input type="number" id="pensionAge" min="50" max="75" placeholder="e.g. 60">
+                <p style="margin-top: 5px; font-size: 14px;"><em>Required for UKRI 2025 scheme calculations. This is your normal pension age under your pension scheme rules.</em></p>
+            </div>
+
             <div class="form-group">
                 <label>
                     <input type="checkbox" id="includeStatutory">
@@ -216,6 +247,14 @@
                     Include Ex-Gratia Payment
                 </label>
                 <p style="margin-top: 5px; font-size: 14px;"><em>Note: Ex-gratia payments are discretionary and vary significantly by department. Many schemes do not include them, or calculate them differently than shown here. Only check this if your scheme includes ex-gratia payments.</em></p>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="useUKRI2025">
+                    Use UKRI 2025 Voluntary Exit Scheme Terms
+                </label>
+                <p style="margin-top: 5px; font-size: 14px;"><em>Specific terms for the UKRI voluntary exit scheme announced in 2025. Includes age-based tapering and £95,000 cap.</em></p>
             </div>
 
             <button type="submit">Calculate Payment</button>
@@ -244,6 +283,18 @@
         <div class="workings" id="workings">
             <h2>Calculation Workings</h2>
             <div id="workingsContent"></div>
+        </div>
+
+        <div class="ukri-notice" id="ukriNotice">
+            <h4>UKRI 2025 Voluntary Exit Scheme Terms</h4>
+            <ul>
+                <li><strong>Below pension age:</strong> 1 month per year of service, max 21 months</li>
+                <li><strong>Above pension age:</strong> 1 month per year of service, max 6 months</li>
+                <li><strong>Tapering:</strong> Maximum compensation = lesser of 21 months OR (months to pension age + 6)</li>
+                <li><strong>Overall cap:</strong> 
+£95,000 maximum payment</li>
+                <li>Applies to MRC, Research Council, UKAEA, and Civil Service Pension Scheme members</li>
+            </ul>
         </div>
 
         <div class="info-box">
@@ -276,6 +327,8 @@
             </ul>
             
             <p><strong>Important:</strong> Ex-gratia payment calculations are illustrative only. Actual ex-gratia amounts are discretionary and vary significantly by department and individual circumstances. The multipliers used (0.25-0.5 months per year) are approximations based on historical schemes and may not reflect current terms.</p>
+            
+            <p><strong>UKRI 2025 Scheme:</strong> The UKRI voluntary exit scheme terms are based on the announcement made in 2025. These terms apply specifically to UKRI staff (including MRC, Research Councils, and UKAEA) and override the standard compensation payment calculations when selected.</p>
         </div>
     </div>
 

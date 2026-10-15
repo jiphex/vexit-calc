@@ -9,6 +9,8 @@ interface CalculationInputs {
     scheme: string;
     includeStatutory: boolean;
     includeExGratia: boolean;
+    useUKRI2025: boolean;
+    pensionAge?: number;
 }
 
 interface CalculationResults {
@@ -110,6 +112,66 @@ class VexitCalculator {
     }
 
     /**
+     * Calculate UKRI 2025 scheme payment
+     * Age-based tapering with £95,000 cap
+     */
+    private calculateUKRI2025(salary: number, yearsService: number, age: number, pensionAge: number): { amount: number; working: string } {
+        const monthlySalary = salary / 12;
+        const UKRI_CAP = 95000;
+        
+        let working = '<div class="workings-section"><h3>UKRI 2025 Compensation Payment</h3>';
+        working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
+        working += `<p>Monthly salary: £${salary.toFixed(2)} ÷ 12 = £${monthlySalary.toFixed(2)}</p>`;
+        working += `<p>Years of service: ${yearsService.toFixed(4)}</p>`;
+        working += `<p>Current age: ${age}</p>`;
+        working += `<p>Pension age: ${pensionAge}</p>`;
+        
+        const monthsToPensionAge = (pensionAge - age) * 12;
+        working += `<p>Months to pension age: ${monthsToPensionAge.toFixed(1)}</p>`;
+        
+        let maxMonths: number;
+        let baseMonths = yearsService; // 1 month per year of service
+        
+        if (age >= pensionAge) {
+            // Above pension age: max 6 months
+            maxMonths = 6;
+            working += '<p><br><strong>Above pension age:</strong> Maximum 6 months</p>';
+        } else {
+            // Below pension age: apply tapering
+            const standardMax = 21;
+            const taperedMax = Math.round(monthsToPensionAge / 12) + 6; // Round part months
+            maxMonths = Math.min(standardMax, taperedMax);
+            
+            working += '<p><br><strong>Below pension age with tapering:</strong></p>';
+            working += `<p>Standard maximum: ${standardMax} months</p>`;
+            working += `<p>Tapered maximum: (${(monthsToPensionAge / 12).toFixed(2)} months to pension age) + 6 = ${taperedMax} months</p>`;
+            working += `<p>Applied maximum: ${maxMonths} months (lesser of the two)</p>`;
+        }
+        
+        const cappedMonths = Math.min(baseMonths, maxMonths);
+        working += `<p><br><strong>Calculation:</strong></p>`;
+        working += `<p>Base entitlement: ${baseMonths.toFixed(4)} months (1 month per year)</p>`;
+        
+        if (baseMonths > maxMonths) {
+            working += `<p>Capped at: ${maxMonths} months</p>`;
+        }
+        
+        let uncappedAmount = monthlySalary * cappedMonths;
+        working += `<p>£${monthlySalary.toFixed(2)} × ${cappedMonths.toFixed(4)} = £${uncappedAmount.toFixed(2)}</p>`;
+        
+        let finalAmount = Math.min(uncappedAmount, UKRI_CAP);
+        
+        if (uncappedAmount > UKRI_CAP) {
+            working += `<p><br><strong>UKRI cap applied:</strong> £${UKRI_CAP.toFixed(2)}</p>`;
+            working += `<p>Final payment: £${finalAmount.toFixed(2)}</p>`;
+        }
+        
+        working += '</div>';
+        
+        return { amount: finalAmount, working };
+    }
+
+    /**
      * Calculate ex-gratia payment
      * Additional discretionary payment based on scheme and circumstances
      */
@@ -176,27 +238,46 @@ class VexitCalculator {
      * Calculate total voluntary exit payment
      */
     public calculate(inputs: CalculationInputs): CalculationResults {
-        const { salary, yearsService, age, scheme, includeStatutory, includeExGratia } = inputs;
+        const { salary, yearsService, age, scheme, includeStatutory, includeExGratia, useUKRI2025, pensionAge } = inputs;
 
-        const statutory = includeStatutory ? this.calculateStatutoryRedundancy(salary, yearsService, age) : { amount: 0, working: '' };
-        const compensation = this.calculateCompensationPayment(salary, yearsService);
-        const exGratia = includeExGratia ? this.calculateExGratia(salary, yearsService, scheme) : { amount: 0, working: '' };
+        let statutory = { amount: 0, working: '' };
+        let compensation = { amount: 0, working: '' };
+        let exGratia = { amount: 0, working: '' };
+
+        if (useUKRI2025) {
+            // UKRI 2025 scheme replaces standard compensation
+            if (!pensionAge) {
+                throw new Error('Pension age is required for UKRI 2025 calculations');
+            }
+            compensation = this.calculateUKRI2025(salary, yearsService, age, pensionAge);
+            // UKRI scheme doesn't include statutory or ex-gratia
+        } else {
+            // Standard scheme
+            if (includeStatutory) {
+                statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
+            }
+            compensation = this.calculateCompensationPayment(salary, yearsService);
+            if (includeExGratia) {
+                exGratia = this.calculateExGratia(salary, yearsService, scheme);
+            }
+        }
+
         const totalPayment = statutory.amount + compensation.amount + exGratia.amount;
 
         let workings = '';
-        if (includeStatutory) {
+        if (statutory.working) {
             workings += statutory.working;
         }
         workings += compensation.working;
-        if (includeExGratia) {
+        if (exGratia.working) {
             workings += exGratia.working;
         }
         workings += '<div class="workings-section"><h3>Total Payment</h3>';
-        if (includeStatutory) {
+        if (statutory.amount > 0) {
             workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
         }
         workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
-        if (includeExGratia) {
+        if (exGratia.amount > 0) {
             workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
         }
         workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
@@ -235,6 +316,8 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e: Event)
     const schemeInput = document.getElementById('scheme') as HTMLSelectElement;
     const includeStatutoryInput = document.getElementById('includeStatutory') as HTMLInputElement;
     const includeExGratiaInput = document.getElementById('includeExGratia') as HTMLInputElement;
+    const useUKRI2025Input = document.getElementById('useUKRI2025') as HTMLInputElement;
+    const pensionAgeInput = document.getElementById('pensionAge') as HTMLInputElement;
 
     const inputs: CalculationInputs = {
         salary: parseFloat(salaryInput.value),
@@ -242,7 +325,9 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e: Event)
         age: parseInt(ageInput.value),
         scheme: schemeInput.value,
         includeStatutory: includeStatutoryInput.checked,
-        includeExGratia: includeExGratiaInput.checked
+        includeExGratia: includeExGratiaInput.checked,
+        useUKRI2025: useUKRI2025Input.checked,
+        pensionAge: pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined
     };
 
     const results = calculator.calculate(inputs);
@@ -280,5 +365,35 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e: Event)
     if (workingsEl) {
         workingsEl.classList.add('show');
         workingsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    // Show/hide UKRI notice
+    const ukriNoticeEl = document.getElementById('ukriNotice');
+    if (ukriNoticeEl) {
+        if (inputs.useUKRI2025) {
+            ukriNoticeEl.classList.add('show');
+        } else {
+            ukriNoticeEl.classList.remove('show');
+        }
+    }
+});
+
+// Handle UKRI 2025 checkbox changes
+document.getElementById('useUKRI2025')?.addEventListener('change', (e: Event) => {
+    const checkbox = e.target as HTMLInputElement;
+    const pensionAgeGroup = document.getElementById('pensionAgeGroup');
+    const pensionAgeInput = document.getElementById('pensionAge') as HTMLInputElement;
+    
+    if (pensionAgeGroup) {
+        pensionAgeGroup.style.display = checkbox.checked ? 'block' : 'none';
+    }
+    
+    // Make pension age required when UKRI is selected
+    if (pensionAgeInput) {
+        if (checkbox.checked) {
+            pensionAgeInput.setAttribute('required', 'required');
+        } else {
+            pensionAgeInput.removeAttribute('required');
+        }
     }
 });
