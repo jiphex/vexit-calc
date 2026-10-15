@@ -5,7 +5,7 @@
 class VexitCalculator {
     constructor() {
         // Statutory redundancy caps and rates
-        this.WEEKLY_PAY_CAP = 643; // 2024 rate
+        this.WEEKLY_PAY_CAP = 751; // Current rate
         this.MAX_REDUNDANCY_YEARS = 20;
     }
     /**

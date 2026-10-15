@@ -24,7 +24,7 @@ interface CalculationResults {
 
 class VexitCalculator {
     // Statutory redundancy caps and rates
-    private readonly WEEKLY_PAY_CAP = 643; // 2024 rate
+    private readonly WEEKLY_PAY_CAP = 751; // Current rate
     private readonly MAX_REDUNDANCY_YEARS = 20;
 
     /**
