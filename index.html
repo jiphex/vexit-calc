@@ -12,34 +12,20 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
+            font-family: serif;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
+            color: black;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         h1 {
-            color: #2d3748;
             margin-bottom: 10px;
-            font-size: 28px;
         }
 
         .subtitle {
-            color: #718096;
             margin-bottom: 30px;
-            font-size: 14px;
         }
 
         .form-group {
@@ -48,76 +34,34 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 500;
-            font-size: 14px;
+            margin-bottom: 5px;
         }
 
         input[type="number"],
-        input[type="date"],
         select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus,
-        input[type="date"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .input-prefix {
-            position: relative;
-        }
-
-        .input-prefix input {
-            padding-left: 30px;
-        }
-
-        .input-prefix::before {
-            content: '£';
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #718096;
-            font-size: 16px;
+            padding: 8px;
+            border: 1px solid black;
         }
 
         button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 10px 20px;
+            background: white;
+            color: black;
+            border: 1px solid black;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 10px;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
+            background: black;
+            color: white;
         }
 
         .results {
             margin-top: 30px;
+            border: 1px solid black;
             padding: 20px;
-            background: #f7fafc;
-            border-radius: 8px;
             display: none;
         }
 
@@ -125,61 +69,65 @@
             display: block;
         }
 
+        .workings {
+            margin-top: 30px;
+            border: 1px solid black;
+            padding: 20px;
+            display: none;
+        }
+
+        .workings.show {
+            display: block;
+        }
+
+        .workings h2 {
+            margin-bottom: 15px;
+        }
+
+        .workings-section {
+            margin-bottom: 20px;
+        }
+
+        .workings-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .workings-section p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 0;
+            border-bottom: 1px solid black;
         }
 
         .result-row:last-child {
             border-bottom: none;
             margin-top: 10px;
             padding-top: 20px;
-            border-top: 2px solid #667eea;
-        }
-
-        .result-label {
-            color: #4a5568;
-            font-weight: 500;
-        }
-
-        .result-value {
-            color: #2d3748;
-            font-weight: 600;
-        }
-
-        .result-row:last-child .result-value {
-            color: #667eea;
-            font-size: 24px;
+            border-top: 2px solid black;
+            font-weight: bold;
         }
 
         .info-box {
-            background: #edf2f7;
+            border: 1px solid black;
             padding: 15px;
-            border-radius: 8px;
             margin-top: 20px;
-            font-size: 13px;
-            color: #4a5568;
-            line-height: 1.6;
-        }
-
-        .info-box strong {
-            color: #2d3748;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🇬🇧 Voluntary Exit Calculator</h1>
+        <h1>Voluntary Exit Calculator</h1>
         <p class="subtitle">Calculate your UK Civil Service Voluntary Exit Scheme payment</p>
 
         <form id="calculatorForm">
             <div class="form-group">
-                <label for="salary">Annual Salary</label>
-                <div class="input-prefix">
-                    <input type="number" id="salary" required min="0" step="0.01" placeholder="45000">
-                </div>
+                <label for="salary">Annual Salary (£)</label>
+                <input type="number" id="salary" required min="0" step="0.01" placeholder="45000">
             </div>
 
             <div class="form-group">
@@ -207,6 +155,7 @@
         </form>
 
         <div class="results" id="results">
+            <h2>Results</h2>
             <div class="result-row">
                 <span class="result-label">Statutory Redundancy:</span>
                 <span class="result-value" id="statutoryRedundancy">£0</span>
@@ -223,6 +172,11 @@
                 <span class="result-label">Total Payment:</span>
                 <span class="result-value" id="totalPayment">£0</span>
             </div>
+        </div>
+
+        <div class="workings" id="workings">
+            <h2>Calculation Workings</h2>
+            <div id="workingsContent"></div>
         </div>
 
         <div class="info-box">

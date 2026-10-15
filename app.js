@@ -13,26 +13,54 @@ class VexitCalculator {
      * Based on age and years of service
      */
     calculateStatutoryRedundancy(salary, yearsService, age) {
-        const weeklyPay = Math.min(salary / 52, this.WEEKLY_PAY_CAP);
+        const actualWeeklyPay = salary / 52;
+        const weeklyPay = Math.min(actualWeeklyPay, this.WEEKLY_PAY_CAP);
         const years = Math.min(yearsService, this.MAX_REDUNDANCY_YEARS);
+        let working = '<div class="workings-section"><h3>1. Statutory Redundancy</h3>';
+        working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
+        working += `<p>Weekly pay: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)}</p>`;
+        if (actualWeeklyPay > this.WEEKLY_PAY_CAP) {
+            working += `<p>Weekly pay capped at: £${this.WEEKLY_PAY_CAP.toFixed(2)}</p>`;
+        }
+        working += `<p>Years of service: ${yearsService.toFixed(1)}</p>`;
+        if (yearsService > this.MAX_REDUNDANCY_YEARS) {
+            working += `<p>Capped at: ${this.MAX_REDUNDANCY_YEARS} years</p>`;
+        }
+        working += `<p>Current age: ${age}</p>`;
+        working += '<p><br><strong>Weekly multipliers by age bracket:</strong></p>';
         let weeks = 0;
         let currentAge = age;
         let remainingYears = years;
+        let weeksUnder22 = 0;
+        let weeks22to40 = 0;
+        let weeksOver40 = 0;
         // Work backwards from current age
         for (let i = 0; i < years && remainingYears > 0; i++) {
             const yearAge = currentAge - i;
             if (yearAge >= 41) {
-                weeks += 1.5; // 1.5 weeks per year for age 41+
+                weeks += 1.5;
+                weeksOver40 += 1.5;
             }
             else if (yearAge >= 22) {
-                weeks += 1; // 1 week per year for age 22-40
+                weeks += 1;
+                weeks22to40 += 1;
             }
             else {
-                weeks += 0.5; // 0.5 weeks per year for under 22
+                weeks += 0.5;
+                weeksUnder22 += 0.5;
             }
             remainingYears--;
         }
-        return weeklyPay * weeks;
+        if (weeksUnder22 > 0)
+            working += `<p>Under 22: ${weeksUnder22} weeks (0.5 weeks per year)</p>`;
+        if (weeks22to40 > 0)
+            working += `<p>Age 22-40: ${weeks22to40} weeks (1 week per year)</p>`;
+        if (weeksOver40 > 0)
+            working += `<p>Age 41+: ${weeksOver40} weeks (1.5 weeks per year)</p>`;
+        working += `<p><br><strong>Calculation:</strong></p>`;
+        working += `<p>£${weeklyPay.toFixed(2)} × ${weeks} weeks = £${(weeklyPay * weeks).toFixed(2)}</p>`;
+        working += '</div>';
+        return { amount: weeklyPay * weeks, working };
     }
     /**
      * Calculate compensation payment
@@ -41,8 +69,18 @@ class VexitCalculator {
     calculateCompensationPayment(salary, yearsService) {
         const monthlySalary = salary / 12;
         const cappedYears = Math.min(yearsService, 21); // Usually capped at 21 years
-        // 1 month per year of service
-        return monthlySalary * cappedYears;
+        let working = '<div class="workings-section"><h3>2. Compensation Payment</h3>';
+        working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
+        working += `<p>Monthly salary: £${salary.toFixed(2)} ÷ 12 = £${monthlySalary.toFixed(2)}</p>`;
+        working += `<p>Years of service: ${yearsService.toFixed(1)}</p>`;
+        if (yearsService > 21) {
+            working += `<p>Capped at: 21 years</p>`;
+        }
+        working += '<p><br><strong>Calculation:</strong></p>';
+        working += `<p>1 month per year of service</p>`;
+        working += `<p>£${monthlySalary.toFixed(2)} × ${cappedYears.toFixed(1)} = £${(monthlySalary * cappedYears).toFixed(2)}</p>`;
+        working += '</div>';
+        return { amount: monthlySalary * cappedYears, working };
     }
     /**
      * Calculate ex-gratia payment
@@ -53,39 +91,74 @@ class VexitCalculator {
         // Ex-gratia varies by scheme and is often discretionary
         // These are typical multipliers
         let multiplier = 0;
+        let multiplierRate = 0;
+        let cap = 0;
+        let schemeName = '';
         switch (scheme) {
             case 'classic':
-                // Classic scheme typically gets higher ex-gratia
-                multiplier = Math.min(yearsService * 0.5, 6);
+                multiplierRate = 0.5;
+                cap = 6;
+                schemeName = 'Classic';
+                multiplier = Math.min(yearsService * multiplierRate, cap);
                 break;
             case 'premium':
-                multiplier = Math.min(yearsService * 0.4, 5);
+                multiplierRate = 0.4;
+                cap = 5;
+                schemeName = 'Classic Plus / Premium';
+                multiplier = Math.min(yearsService * multiplierRate, cap);
                 break;
             case 'nuvos':
-                multiplier = Math.min(yearsService * 0.3, 4);
+                multiplierRate = 0.3;
+                cap = 4;
+                schemeName = 'Nuvos';
+                multiplier = Math.min(yearsService * multiplierRate, cap);
                 break;
             case 'alpha':
-                multiplier = Math.min(yearsService * 0.25, 3);
+                multiplierRate = 0.25;
+                cap = 3;
+                schemeName = 'Alpha';
+                multiplier = Math.min(yearsService * multiplierRate, cap);
                 break;
             default:
                 multiplier = 0;
         }
-        return monthlySalary * multiplier;
+        let working = '<div class="workings-section"><h3>3. Ex-Gratia Payment</h3>';
+        working += `<p>Pension scheme: ${schemeName}</p>`;
+        working += `<p>Monthly salary: £${monthlySalary.toFixed(2)}</p>`;
+        working += `<p>Years of service: ${yearsService.toFixed(1)}</p>`;
+        working += `<p>Multiplier rate: ${multiplierRate} months per year (capped at ${cap} months)</p>`;
+        const uncappedMultiplier = yearsService * multiplierRate;
+        working += `<p><br><strong>Calculation:</strong></p>`;
+        working += `<p>${yearsService.toFixed(1)} years × ${multiplierRate} = ${uncappedMultiplier.toFixed(2)} months</p>`;
+        if (uncappedMultiplier > cap) {
+            working += `<p>Capped at: ${cap} months</p>`;
+        }
+        working += `<p>£${monthlySalary.toFixed(2)} × ${multiplier.toFixed(2)} = £${(monthlySalary * multiplier).toFixed(2)}</p>`;
+        working += '</div>';
+        return { amount: monthlySalary * multiplier, working };
     }
     /**
      * Calculate total voluntary exit payment
      */
     calculate(inputs) {
         const { salary, yearsService, age, scheme } = inputs;
-        const statutoryRedundancy = this.calculateStatutoryRedundancy(salary, yearsService, age);
-        const compensationPayment = this.calculateCompensationPayment(salary, yearsService);
+        const statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
+        const compensation = this.calculateCompensationPayment(salary, yearsService);
         const exGratia = this.calculateExGratia(salary, yearsService, scheme);
-        const totalPayment = statutoryRedundancy + compensationPayment + exGratia;
+        const totalPayment = statutory.amount + compensation.amount + exGratia.amount;
+        let workings = statutory.working + compensation.working + exGratia.working;
+        workings += '<div class="workings-section"><h3>Total Payment</h3>';
+        workings += `<p>Statutory Redundancy: £${statutory.amount.toFixed(2)}</p>`;
+        workings += `<p>Compensation Payment: £${compensation.amount.toFixed(2)}</p>`;
+        workings += `<p>Ex-Gratia Payment: £${exGratia.amount.toFixed(2)}</p>`;
+        workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
+        workings += '</div>';
         return {
-            statutoryRedundancy,
-            compensationPayment,
-            exGratia,
-            totalPayment
+            statutoryRedundancy: statutory.amount,
+            compensationPayment: compensation.amount,
+            exGratia: exGratia.amount,
+            totalPayment,
+            workings
         };
     }
 }
@@ -120,6 +193,8 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
     const exGratiaEl = document.getElementById('exGratia');
     const totalPaymentEl = document.getElementById('totalPayment');
     const resultsEl = document.getElementById('results');
+    const workingsEl = document.getElementById('workings');
+    const workingsContentEl = document.getElementById('workingsContent');
     if (statutoryRedundancyEl)
         statutoryRedundancyEl.textContent = formatCurrency(results.statutoryRedundancy);
     if (compensationPaymentEl)
@@ -128,8 +203,14 @@ document.getElementById('calculatorForm')?.addEventListener('submit', (e) => {
         exGratiaEl.textContent = formatCurrency(results.exGratia);
     if (totalPaymentEl)
         totalPaymentEl.textContent = formatCurrency(results.totalPayment);
+    if (workingsContentEl) {
+        workingsContentEl.innerHTML = results.workings;
+    }
     if (resultsEl) {
         resultsEl.classList.add('show');
-        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    if (workingsEl) {
+        workingsEl.classList.add('show');
+        workingsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 });
