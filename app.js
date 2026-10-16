@@ -243,6 +243,11 @@ function performCalculation(mode) {
     }
     if (resultsEl) {
         resultsEl.classList.add('show');
+        const resultsHeading = resultsEl.querySelector('h2');
+        if (resultsHeading) {
+            resultsHeading.setAttribute('tabindex', '-1');
+            resultsHeading.focus();
+        }
     }
     if (workingsEl) {
         workingsEl.classList.add('show');

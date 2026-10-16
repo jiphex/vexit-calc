@@ -11,6 +11,25 @@
             box-sizing: border-box;
         }
 
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 20px;
+            z-index: 999;
+            background: #0066cc;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .skip-link:focus {
+            left: 20px;
+            top: 20px;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             background: white;
@@ -111,6 +130,11 @@
 
         button:active {
             background: #004080;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #0066cc;
+            outline-offset: 2px;
         }
 
         button#calculateUKRI:hover {
@@ -258,14 +282,16 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
+        <main id="main-content">
         <div class="warning-box">
-            <h2>⚠️ WARNING</h2>
+            <h2><span aria-hidden="true">⚠️</span> WARNING</h2>
             <p><strong>This calculator was written by AI and may contain errors.</strong></p>
             <p>Do not rely on these calculations for financial planning. Always verify with your HR department or official sources.</p>
             <p>Payments are likely subject to be taxed, so please take this into account.</p>
             <p>An <a href="https://www.civilservicepensionscheme.org.uk/memberhub/knowledge-centre/tools-and-calcs/pension-calculators/">official calculator</a> is available from the Civil Service, but it is a confusing Excel spreadsheet with macros, which seems difficult to use.</p>
-            <p style="margin-top: 10px;">If you find any issues or errors, please report them at: <a href="https://github.com/jiphex/vexit-calc/issues" target="_blank" style="color: #dc3545; text-decoration: underline;">GitHub Issues</a></p>
+            <p style="margin-top: 10px;">If you find any issues or errors, please report them at: <a href="https://github.com/jiphex/vexit-calc/issues" target="_blank" rel="noopener noreferrer" style="color: #dc3545; text-decoration: underline;">GitHub Issues</a></p>
         </div>
 
         <div class="info-box">
@@ -281,7 +307,7 @@
         <h1>Voluntary Exit Calculator</h1>
         <p class="subtitle">Calculate your UKRI/UK Civil Service Voluntary Exit Scheme payment</p>
 
-        <form id="calculatorForm">
+        <form id="calculatorForm" novalidate>
             <div class="form-group">
                 <label for="salary">Annual Salary (£)</label>
                 <input type="number" id="salary" required min="0" step="0.01" placeholder="45000">
@@ -321,7 +347,7 @@
             </div>
         </form>
 
-        <div class="results" id="results">
+        <div class="results" id="results" aria-live="polite">
             <h2>Results</h2>
             <table>
                 <tbody>
@@ -341,13 +367,13 @@
             </table>
         </div>
 
-        <div class="workings" id="workings">
+        <div class="workings" id="workings" aria-live="polite">
             <h2>Calculation Workings</h2>
             <div id="workingsContent"></div>
             <div><strong>Payments over £30,000 will likely be subject to income tax. Please consider this before calculating your take-home payment. </strong></div>
         </div>
 
-        <div class="ukri-notice" id="ukriNotice">
+        <div class="ukri-notice" id="ukriNotice" aria-live="polite">
             <h4>UKRI 2025 Voluntary Exit Scheme Terms</h4>
             <ul>
                 <li><strong>Below pension age:</strong> 1 month per year of service, max 21 months</li>
@@ -371,10 +397,10 @@
             <p>If this calculator was useful and you've benefitted from a voluntary exit payment, please consider donating a small amount to a well-deserving charity of your choice.</p>
             <p>Some suggestions:</p>
             <ul>
-                <li><a href="https://www.msf.org.uk/donate" target="_blank">Médecins Sans Frontières (MSF)</a> - Medical humanitarian aid in crisis zones</li>
-                <li><a href="https://rnli.org/support-us/give-money" target="_blank">RNLI</a> - Saving lives at sea</li>
-                <li><a href="https://england.shelter.org.uk/support_us/donate" target="_blank">Shelter</a> - Fighting homelessness and bad housing</li>
-                <li><a href="https://fullfact.org/donate/" target="_blank">Full Fact</a> - Independent fact-checking charity</li>
+                <li><a href="https://www.msf.org.uk/donate" target="_blank" rel="noopener noreferrer">Médecins Sans Frontières (MSF)</a> - Medical humanitarian aid in crisis zones</li>
+                <li><a href="https://rnli.org/support-us/give-money" target="_blank" rel="noopener noreferrer">RNLI</a> - Saving lives at sea</li>
+                <li><a href="https://england.shelter.org.uk/support_us/donate" target="_blank" rel="noopener noreferrer">Shelter</a> - Fighting homelessness and bad housing</li>
+                <li><a href="https://fullfact.org/donate/" target="_blank" rel="noopener noreferrer">Full Fact</a> - Independent fact-checking charity</li>
             </ul>
         </div>
 
@@ -382,21 +408,19 @@
             <h3>Sources and References</h3>
             <p><strong>Statutory Redundancy:</strong></p>
             <ul>
-                <li>Weekly pay cap (£751): <a href="https://www.gov.uk/redundancy-your-rights/redundancy-pay" target="_blank">GOV.UK - Redundancy Pay</a></li>
-                <li>Age-based multipliers: <a href="https://www.gov.uk/calculate-your-redundancy-pay" target="_blank">GOV.UK - Calculate Redundancy Pay</a></li>
+                <li>Weekly pay cap (£751): <a href="https://www.gov.uk/redundancy-your-rights/redundancy-pay" target="_blank" rel="noopener noreferrer">GOV.UK - Redundancy Pay</a></li>
+                <li>Age-based multipliers: <a href="https://www.gov.uk/calculate-your-redundancy-pay" target="_blank" rel="noopener noreferrer">GOV.UK - Calculate Redundancy Pay</a></li>
             </ul>
             
             <p><strong>Civil Service Pension Schemes:</strong></p>
             <ul>
-                <li>Alpha (2015 onwards): <a href="https://www.civilservicepensionscheme.org.uk/members/alpha/" target="_blank">Civil Service Pension Scheme - Alpha</a></li>
-                <li>Nuvos (2007-2015): <a href="https://www.civilservicepensionscheme.org.uk/members/nuvos/" target="_blank">Civil Service Pension Scheme - Nuvos</a></li>
-                <li>Classic and Premium: <a href="https://www.civilservicepensionscheme.org.uk/members/classic-and-classic-plus/" target="_blank">Civil Service Pension Scheme - Classic</a></li>
+                <li>Alpha (2015 onwards): <a href="https://www.civilservicepensionscheme.org.uk/members/alpha/" target="_blank" rel="noopener noreferrer">Civil Service Pension Scheme - Alpha</a></li>
+                <li>Nuvos (2007-2015): <a href="https://www.civilservicepensionscheme.org.uk/members/nuvos/" target="_blank" rel="noopener noreferrer">Civil Service Pension Scheme - Nuvos</a></li>
+                <li>Classic and Premium: <a href="https://www.civilservicepensionscheme.org.uk/members/classic-and-classic-plus/" target="_blank" rel="noopener noreferrer">Civil Service Pension Scheme - Classic</a></li>
             </ul>
             
             <p><strong>Voluntary Exit Schemes:</strong></p>
             <ul>
-                <li>Civil Service Compensation Scheme: <a href="https://www.civilservicepensionscheme.org.uk/knowledge-centre/compensation-and-premature-retirement/" target="_blank">CSPS - Compensation</a></li>
-                <li>Cabinet Office guidance on exits: <a href="https://www.gov.uk/government/organisations/cabinet-office" target="_blank">Cabinet Office</a></li>
                 <li>CSPS FAQ Document: <a href="https://www.civilservicepensionscheme.org.uk/leaving-employment-under-exit-terms-guide/" target="_blank">CSPS - FAQ</a></li>
             </ul>
             

@@ -36,7 +36,7 @@ class VexitCalculator {
         
         let working = '<div class="workings-section"><h3>Statutory Redundancy</h3>';
         working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
-        working += `<p>Weekly pay: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)}</p>`;
+        working += `<p>Annual salary: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)} weekly</p>`;
         
         if (actualWeeklyPay > this.WEEKLY_PAY_CAP) {
             working += `<p>Weekly pay capped at: £${this.WEEKLY_PAY_CAP.toFixed(2)}</p>`;
@@ -160,11 +160,12 @@ class VexitCalculator {
         working += `<p>£${monthlySalary.toFixed(2)} × ${cappedMonths.toFixed(4)} = £${uncappedAmount.toFixed(2)}</p>`;
         
         let finalAmount = Math.min(uncappedAmount, UKRI_CAP);
-        
+
         if (uncappedAmount > UKRI_CAP) {
             working += `<p><br><strong>UKRI cap applied:</strong> £${UKRI_CAP.toFixed(2)}</p>`;
-            working += `<p>Final payment: £${finalAmount.toFixed(2)}</p>`;
         }
+
+        working += `<p><strong>Final payment: £${finalAmount.toFixed(2)}</strong></p>`;
         
         working += '</div>';
         
@@ -188,7 +189,7 @@ class VexitCalculator {
             if (!pensionAge) {
                 throw new Error('Pension age is required for UKRI 2025 calculations');
             }
-            compensation = this.calculateUKRI2025(salary, yearsService, age, pensionAge);
+            compensation = this.calculateUKRI2025(salary, yearsService, age, pensionAge!);
         } else if (mode === 'statutory') {
             // Statutory redundancy only
             statutory = this.calculateStatutoryRedundancy(salary, yearsService, age);
@@ -224,6 +225,12 @@ class VexitCalculator {
             workings += '</div>';
         }
 
+        if (totalPayment > 95000) {
+            workings += '<div class="workings-section"><h3>Important Note</h3>';
+            workings += '<p>This payment exceeds £95,000 and may be subject to capping or Cabinet Office approval.</p>';
+            workings += '</div>';
+        }
+
         return {
             statutoryRedundancy: statutory.amount,
             compensationPayment: compensation.amount,
@@ -253,28 +260,37 @@ function performCalculation(mode: CalculationMode) {
     const ageInput = document.getElementById('age') as HTMLInputElement;
     const pensionAgeInput = document.getElementById('pensionAge') as HTMLInputElement;
 
-    // Validate required fields based on mode
-    if (!salaryInput.value || !yearsServiceInput.value) {
-        alert('Please enter salary and years of service');
+    const salary = parseFloat(salaryInput.value);
+    const yearsService = parseFloat(yearsServiceInput.value);
+    const age = ageInput.value ? parseInt(ageInput.value) : 0;
+    const pensionAge = pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined;
+
+    // Validate numeric inputs
+    if (isNaN(salary) || salary <= 0) {
+        alert('Please enter a valid salary');
         return;
     }
-
-    if ((mode === 'statutory' || mode === 'ukri2025') && !ageInput.value) {
-        alert('Please enter your age for this calculation');
+    if (isNaN(yearsService) || yearsService <= 0) {
+        alert('Please enter valid years of service');
         return;
     }
-
-    if (mode === 'ukri2025' && !pensionAgeInput.value) {
-        alert('Please enter your normal pension age for UKRI 2025 calculations');
+    if ((mode === 'statutory' || mode === 'ukri2025') && (isNaN(age) || age < 16 || age > 100)) {
+        alert('Please enter a valid age (16-100)');
         return;
+    }
+    if (mode === 'ukri2025') {
+        if (pensionAge === undefined || isNaN(pensionAge) || pensionAge < 16 || pensionAge > 100) {
+            alert('Please enter a valid pension age (16-100)');
+            return;
+        }
     }
 
     const inputs: CalculationInputs = {
-        salary: parseFloat(salaryInput.value),
-        yearsService: parseFloat(yearsServiceInput.value),
-        age: ageInput.value ? parseInt(ageInput.value) : 0,
-        mode: mode,
-        pensionAge: pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined
+        salary,
+        yearsService,
+        age,
+        mode,
+        pensionAge
     };
 
     const results = calculator.calculate(inputs);
@@ -301,6 +317,11 @@ function performCalculation(mode: CalculationMode) {
     
     if (resultsEl) {
         resultsEl.classList.add('show');
+        const resultsHeading = resultsEl.querySelector('h2');
+        if (resultsHeading) {
+            resultsHeading.setAttribute('tabindex', '-1');
+            resultsHeading.focus();
+        }
     }
     
     if (workingsEl) {
