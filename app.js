@@ -298,8 +298,11 @@ async function loadPayBands() {
     const errorEl = document.getElementById('payBandError');
     if (!container)
         return;
+    // Resolve the JSON URL relative to the current page so it works on
+    // GitHub Pages when the site is served from a subdirectory.
+    const jsonUrl = new URL('ukri-pay-bands.json', window.location.href).href;
     try {
-        const response = await fetch('ukri-pay-bands.json');
+        const response = await fetch(jsonUrl);
         if (!response.ok)
             throw new Error('Failed to load pay bands');
         const data = await response.json();
