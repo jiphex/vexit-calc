@@ -19,7 +19,7 @@ class VexitCalculator {
         const years = Math.min(wholeYears, this.MAX_REDUNDANCY_YEARS);
         let working = '<div class="workings-section"><h3>Statutory Redundancy</h3>';
         working += `<p>Annual salary: £${salary.toFixed(2)}</p>`;
-        working += `<p>Weekly pay: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)}</p>`;
+        working += `<p>Annual salary: £${salary.toFixed(2)} ÷ 52 = £${actualWeeklyPay.toFixed(2)} weekly</p>`;
         if (actualWeeklyPay > this.WEEKLY_PAY_CAP) {
             working += `<p>Weekly pay capped at: £${this.WEEKLY_PAY_CAP.toFixed(2)}</p>`;
         }
@@ -127,8 +127,8 @@ class VexitCalculator {
         let finalAmount = Math.min(uncappedAmount, UKRI_CAP);
         if (uncappedAmount > UKRI_CAP) {
             working += `<p><br><strong>UKRI cap applied:</strong> £${UKRI_CAP.toFixed(2)}</p>`;
-            working += `<p>Final payment: £${finalAmount.toFixed(2)}</p>`;
         }
+        working += `<p><strong>Final payment: £${finalAmount.toFixed(2)}</strong></p>`;
         working += '</div>';
         return { amount: finalAmount, working };
     }
@@ -175,6 +175,11 @@ class VexitCalculator {
             workings += `<p><br><strong>Total: £${totalPayment.toFixed(2)}</strong></p>`;
             workings += '</div>';
         }
+        if (totalPayment > 95000) {
+            workings += '<div class="workings-section"><h3>Important Note</h3>';
+            workings += '<p>This payment exceeds £95,000 and may be subject to capping or Cabinet Office approval.</p>';
+            workings += '</div>';
+        }
         return {
             statutoryRedundancy: statutory.amount,
             compensationPayment: compensation.amount,
@@ -200,25 +205,35 @@ function performCalculation(mode) {
     const yearsServiceInput = document.getElementById('yearsService');
     const ageInput = document.getElementById('age');
     const pensionAgeInput = document.getElementById('pensionAge');
-    // Validate required fields based on mode
-    if (!salaryInput.value || !yearsServiceInput.value) {
-        alert('Please enter salary and years of service');
+    const salary = parseFloat(salaryInput.value);
+    const yearsService = parseFloat(yearsServiceInput.value);
+    const age = ageInput.value ? parseInt(ageInput.value) : 0;
+    const pensionAge = pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined;
+    // Validate numeric inputs
+    if (isNaN(salary) || salary <= 0) {
+        alert('Please enter a valid salary');
         return;
     }
-    if ((mode === 'statutory' || mode === 'ukri2025') && !ageInput.value) {
-        alert('Please enter your age for this calculation');
+    if (isNaN(yearsService) || yearsService <= 0) {
+        alert('Please enter valid years of service');
         return;
     }
-    if (mode === 'ukri2025' && !pensionAgeInput.value) {
-        alert('Please enter your normal pension age for UKRI 2025 calculations');
+    if ((mode === 'statutory' || mode === 'ukri2025') && (isNaN(age) || age < 16 || age > 100)) {
+        alert('Please enter a valid age (16-100)');
         return;
+    }
+    if (mode === 'ukri2025') {
+        if (pensionAge === undefined || isNaN(pensionAge) || pensionAge < 16 || pensionAge > 100) {
+            alert('Please enter a valid pension age (16-100)');
+            return;
+        }
     }
     const inputs = {
-        salary: parseFloat(salaryInput.value),
-        yearsService: parseFloat(yearsServiceInput.value),
-        age: ageInput.value ? parseInt(ageInput.value) : 0,
-        mode: mode,
-        pensionAge: pensionAgeInput.value ? parseInt(pensionAgeInput.value) : undefined
+        salary,
+        yearsService,
+        age,
+        mode,
+        pensionAge
     };
     const results = calculator.calculate(inputs);
     // Update UI with results
@@ -274,3 +289,61 @@ document.getElementById('calculateUKRI')?.addEventListener('click', () => {
 document.getElementById('calculateStatutory')?.addEventListener('click', () => {
     performCalculation('statutory');
 });
+/**
+ * Load UKRI pay bands from JSON and populate the quick-select links.
+ */
+async function loadPayBands() {
+    const container = document.getElementById('payBandSelector');
+    const loadingEl = document.getElementById('payBandLoading');
+    const errorEl = document.getElementById('payBandError');
+    if (!container)
+        return;
+    try {
+        const response = await fetch('ukri-pay-bands.json');
+        if (!response.ok)
+            throw new Error('Failed to load pay bands');
+        const data = await response.json();
+        if (loadingEl)
+            loadingEl.style.display = 'none';
+        const bands = Object.entries(data.minimum_pay).sort(([a], [b]) => a.localeCompare(b));
+        let html = `
+            <p style="margin-top: 8px; font-size: 13px; color: #666;">Quick select UKRI pay band (from official policy, effective ${data.effective_from}):</p>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; font-size: 12px;">
+                <div><strong>Band</strong></div>
+                <div><strong>Base</strong></div>
+                <div><strong>S2 (STEM)</strong></div>
+                <div><strong>S1 (STEM)</strong></div>
+        `;
+        for (const [band, pay] of bands) {
+            html += `<div><strong>${band}</strong></div>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} Base', ${pay.standard}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.standard.toLocaleString()}</a>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} S2', ${pay.S2}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.S2.toLocaleString()}</a>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} S1', ${pay.S1}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.S1.toLocaleString()}</a>`;
+        }
+        html += `</div>`;
+        html += `<p style="margin-top: 6px; font-size: 12px; color: #999; font-style: italic;">Source: <a href="${data.source}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">UKRI Pay and Reward Policy</a></p>`;
+        container.innerHTML = html;
+    }
+    catch (err) {
+        if (loadingEl)
+            loadingEl.style.display = 'none';
+        if (errorEl) {
+            errorEl.textContent = 'Failed to load UKRI pay bands. Please enter salary manually.';
+            errorEl.style.display = 'block';
+        }
+        console.error('Failed to load pay bands:', err);
+    }
+}
+/**
+ * Prefill the salary field from a UKRI pay band figure.
+ * Exposed globally so the HTML onclick handlers can call it.
+ */
+window.setPayBandSalary = (grade, amount) => {
+    const salaryInput = document.getElementById('salary');
+    if (salaryInput) {
+        salaryInput.value = amount.toString();
+        salaryInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+};
+// Load pay bands when the page is ready
+document.addEventListener('DOMContentLoaded', loadPayBands);

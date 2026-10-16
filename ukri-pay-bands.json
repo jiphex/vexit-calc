@@ -1,0 +1,17 @@
+{
+  "source": "https://www.ukri.org/publications/ukri-pay-and-reward-policy/pay-and-reward-policy/",
+  "policy_published": "2025-02-24",
+  "effective_from": "2025-07-01",
+  "currency": "GBP",
+  "description": "Minimum annual pay for each UKRI band on the standard (main), S1 and S2 pay scales",
+  "minimum_pay": {
+    "A": { "standard": 23493, "S1": 23493, "S2": 23493 },
+    "B": { "standard": 25842, "S1": 29037, "S2": 27749 },
+    "C": { "standard": 30895, "S1": 33838, "S2": 32315 },
+    "D": { "standard": 37841, "S1": 46444, "S2": 42688 },
+    "E": { "standard": 46743, "S1": 58346, "S2": 52907 },
+    "F": { "standard": 58589, "S1": 67409, "S2": 64463 },
+    "G": { "standard": 70752, "S1": 81457, "S2": 77832 },
+    "H": { "standard": 86731, "S1": 95505, "S2": 95505 }
+  }
+}

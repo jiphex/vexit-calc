@@ -353,4 +353,84 @@ document.getElementById('calculateStatutory')?.addEventListener('click', () => {
     performCalculation('statutory');
 });
 
+interface PayBand {
+    standard: number;
+    S1: number;
+    S2: number;
+}
+
+interface PayBandsData {
+    source: string;
+    policy_published: string;
+    effective_from: string;
+    currency: string;
+    description: string;
+    minimum_pay: Record<string, PayBand>;
+}
+
+/**
+ * Load UKRI pay bands from JSON and populate the quick-select links.
+ */
+async function loadPayBands(): Promise<void> {
+    const container = document.getElementById('payBandSelector');
+    const loadingEl = document.getElementById('payBandLoading');
+    const errorEl = document.getElementById('payBandError');
+
+    if (!container) return;
+
+    try {
+        const response = await fetch('ukri-pay-bands.json');
+        if (!response.ok) throw new Error('Failed to load pay bands');
+        const data: PayBandsData = await response.json();
+
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        const bands = Object.entries(data.minimum_pay).sort(([a], [b]) => a.localeCompare(b));
+
+        let html = `
+            <p style="margin-top: 8px; font-size: 13px; color: #666;">Quick select UKRI pay band (from official policy, effective ${data.effective_from}):</p>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; font-size: 12px;">
+                <div><strong>Band</strong></div>
+                <div><strong>Base</strong></div>
+                <div><strong>S2 (STEM)</strong></div>
+                <div><strong>S1 (STEM)</strong></div>
+        `;
+
+        for (const [band, pay] of bands) {
+            html += `<div><strong>${band}</strong></div>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} Base', ${pay.standard}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.standard.toLocaleString()}</a>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} S2', ${pay.S2}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.S2.toLocaleString()}</a>`;
+            html += `<a href="#" onclick="setPayBandSalary('${band} S1', ${pay.S1}); return false;" style="color: #0066cc; text-decoration: underline;">£${pay.S1.toLocaleString()}</a>`;
+        }
+
+        html += `</div>`;
+        html += `<p style="margin-top: 6px; font-size: 12px; color: #999; font-style: italic;">Source: <a href="${data.source}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">UKRI Pay and Reward Policy</a></p>`;
+
+        container.innerHTML = html;
+    } catch (err) {
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorEl) {
+            errorEl.textContent = 'Failed to load UKRI pay bands. Please enter salary manually.';
+            errorEl.style.display = 'block';
+        }
+        console.error('Failed to load pay bands:', err);
+    }
+}
+
+/**
+ * Prefill the salary field from a UKRI pay band figure.
+ * Exposed globally so the HTML onclick handlers can call it.
+ */
+(window as any).setPayBandSalary = (grade: string, amount: number) => {
+    const salaryInput = document.getElementById('salary') as HTMLInputElement | null;
+    if (salaryInput) {
+        salaryInput.value = amount.toString();
+        salaryInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+};
+
+// Load pay bands when the page is ready
+document.addEventListener('DOMContentLoaded', loadPayBands);
+
+
 
