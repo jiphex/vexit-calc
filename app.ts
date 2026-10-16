@@ -432,8 +432,162 @@ async function loadPayBands(): Promise<void> {
     }
 };
 
+/**
+ * Prefill the years of service field.
+ * Exposed globally so the HTML onclick handlers can call it.
+ */
+(window as any).setYearsService = (years: string) => {
+    const yearsInput = document.getElementById('yearsService') as HTMLInputElement | null;
+    if (yearsInput) {
+        yearsInput.value = years;
+        yearsInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+};
+
+// URL fragment sharing
+interface CalcParams {
+    salary?: string;
+    yearsService?: string;
+    age?: string;
+    pensionAge?: string;
+    mode?: CalculationMode;
+}
+
+/** Read calculation params from the URL fragment (e.g. #salary=45000&yearsService=10.25&age=45&mode=standard) */
+function getParamsFromFragment(): CalcParams {
+    const hash = window.location.hash;
+    if (!hash || hash === '#') return {};
+    const query = hash.replace(/^#/, '');
+    const params: CalcParams = {};
+    for (const pair of query.split('&')) {
+        const [key, value] = pair.split('=');
+        if (!key || value === undefined) continue;
+        const decoded = decodeURIComponent(value);
+        if (key === 'salary') params.salary = decoded;
+        else if (key === 'yearsService') params.yearsService = decoded;
+        else if (key === 'age') params.age = decoded;
+        else if (key === 'pensionAge') params.pensionAge = decoded;
+    }
+    return params;
+}
+
+/** Build a URL fragment from calculation params */
+function serializeFragment(params: CalcParams): string {
+    const parts: string[] = [];
+    for (const [key, value] of Object.entries(params)) {
+        if (value !== undefined && value !== '') {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+        }
+    }
+    return parts.length ? '#' + parts.join('&') : '#';
+}
+
+/** Apply calculation params to the form inputs */
+function applyParamsToForm(params: CalcParams): void {
+    const salaryEl = document.getElementById('salary') as HTMLInputElement | null;
+    const yearsEl = document.getElementById('yearsService') as HTMLInputElement | null;
+    const ageEl = document.getElementById('age') as HTMLInputElement | null;
+    const pensionEl = document.getElementById('pensionAge') as HTMLInputElement | null;
+
+    if (salaryEl && params.salary !== undefined) salaryEl.value = params.salary;
+    if (yearsEl && params.yearsService !== undefined) yearsEl.value = params.yearsService;
+    if (ageEl && params.age !== undefined) ageEl.value = params.age;
+    if (pensionEl && params.pensionAge !== undefined) pensionEl.value = params.pensionAge;
+}
+
+/** Read current form values into params */
+function getFormParams(): CalcParams {
+    const salaryEl = document.getElementById('salary') as HTMLInputElement | null;
+    const yearsEl = document.getElementById('yearsService') as HTMLInputElement | null;
+    const ageEl = document.getElementById('age') as HTMLInputElement | null;
+    const pensionEl = document.getElementById('pensionAge') as HTMLInputElement | null;
+
+    const params: CalcParams = {};
+    if (salaryEl?.value) params.salary = salaryEl.value;
+    if (yearsEl?.value) params.yearsService = yearsEl.value;
+    if (ageEl?.value) params.age = ageEl.value;
+    if (pensionEl?.value) params.pensionAge = pensionEl.value;
+    return params;
+}
+
+/** Update the URL fragment without reloading the page */
+function updateUrlFragment(params: CalcParams): void {
+    const fragment = serializeFragment(params);
+    if (fragment && fragment !== '#') {
+        window.history.replaceState('', '', fragment);
+    }
+}
+
+/** Initialize URL fragment sharing: apply initial fragment and wire up input listeners */
+function initUrlSharing(): void {
+    // Apply any existing fragment params on load
+    const initial = getParamsFromFragment();
+    const hasFragment = Object.keys(initial).length > 0;
+    if (hasFragment) {
+        applyParamsToForm(initial);
+        // Auto-calculate under standard terms when a share link is opened
+        setTimeout(() => performCalculation('standard'), 0);
+    }
+
+    // Update fragment whenever any input changes
+    const inputs = ['salary', 'yearsService', 'age', 'pensionAge'] as const;
+    for (const id of inputs) {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) {
+            el.addEventListener('input', () => {
+                const params = getFormParams();
+                updateUrlFragment(params);
+            });
+        }
+    }
+}
+
+// Share button: show the current URL with fragment, and copy to clipboard
+function initShareButton(): void {
+    const shareBtn = document.getElementById('shareLink') as HTMLButtonElement | null;
+    const copyBtn = document.getElementById('copyShareUrl') as HTMLButtonElement | null;
+    const container = document.getElementById('shareUrlContainer') as HTMLElement | null;
+    const urlInput = document.getElementById('shareUrl') as HTMLInputElement | null;
+
+    if (!shareBtn || !copyBtn || !container || !urlInput) return;
+
+    const urlInputNonNull = urlInput;
+
+    function refreshShareUrl(): void {
+        const params = getFormParams();
+        const fragment = serializeFragment(params);
+        const base = window.location.origin + window.location.pathname;
+        urlInputNonNull.value = fragment ? base + fragment : base;
+    }
+
+    shareBtn.addEventListener('click', () => {
+        refreshShareUrl();
+        container.style.display = container.style.display === 'block' ? 'none' : 'block';
+    });
+
+    copyBtn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(urlInput.value);
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    });
+
+    // Refresh share URL whenever inputs change
+    const inputs = ['salary', 'yearsService', 'age', 'pensionAge'] as const;
+    for (const id of inputs) {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) {
+            el.addEventListener('input', refreshShareUrl);
+        }
+    }
+}
+
 // Load pay bands when the page is ready
-document.addEventListener('DOMContentLoaded', loadPayBands);
+document.addEventListener('DOMContentLoaded', () => {
+    loadPayBands();
+    initUrlSharing();
+    initShareButton();
+});
 
 
 

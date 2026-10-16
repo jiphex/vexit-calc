@@ -332,6 +332,14 @@
                 <label for="yearsService">Years of Service (at time of exit)</label>
                 <input type="number" id="yearsService" required min="0" max="50" step="0.0001" placeholder="10.2500">
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pensionable service (can include part years, e.g. 10.2500 for 10 years and 3 months).</p>
+                <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                    <strong>Quick select:</strong> 
+                    <a href="#" onclick="setYearsService('2'); return false;" style="color: #0066cc; text-decoration: underline;">2 years</a>
+                    <a href="#" onclick="setYearsService('5'); return false;" style="color: #0066cc; text-decoration: underline;">5 years</a>
+                    <a href="#" onclick="setYearsService('10'); return false;" style="color: #0066cc; text-decoration: underline;">10 years</a>
+                    <a href="#" onclick="setYearsService('15'); return false;" style="color: #0066cc; text-decoration: underline;">15 years</a>
+                    <a href="#" onclick="setYearsService('20'); return false;" style="color: #0066cc; text-decoration: underline;">20 years</a>
+                </div>
                 <div style="margin-top: 8px; font-size: 12px; color: #666; line-height: 1.6;">
                     <p style="margin: 0 0 6px 0;"><strong>Years of Service for Compensation:</strong></p>
                     <p style="margin: 0 0 6px 0;">This is the service your compensation will be based on. It excludes transferred in service, added years, added pension etc as laid out in the CSCS calculator guidance. It also excludes all unpaid leave.</p>
@@ -359,8 +367,18 @@
                 <button type="button" id="calculateStandard" style="flex: 1; min-width: 200px;">Calculate Standard Terms</button>
                 <button type="button" id="calculateUKRI" style="flex: 1; min-width: 200px; background: #28a745;">Calculate UKRI 2025 Terms</button>
                 <button type="button" id="calculateStatutory" style="flex: 1; min-width: 200px; background: #6c757d;">Calculate Statutory Redundancy Only</button>
+                <button type="button" id="shareLink" style="flex: 1; min-width: 200px; background: #6c757d;">Share link</button>
             </div>
-            
+
+            <div id="shareUrlContainer" style="margin-top: 10px; padding: 10px; background: #f0f7ff; border: 1px solid #ddd; border-radius: 4px; display: none;">
+                <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #0066cc;">Shareable link (pre-fills salary, years of service, age, and pension age):</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="shareUrl" readonly style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; font-family: monospace;" />
+                    <button type="button" id="copyShareUrl" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Copy</button>
+                </div>
+                <p style="margin-top: 6px; font-size: 11px; color: #666;">Send this link to someone to share your pre-filled calculator values.</p>
+            </div>
+
             <div style="margin-top: 10px; font-size: 13px; color: #666;">
                 <p><strong>Standard Terms:</strong> 1 month per year of service (max 21 months)</p>
                 <p><strong>UKRI 2025 Terms:</strong> Age-tapered calculation with £95,000 cap</p>
