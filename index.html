@@ -322,6 +322,7 @@
                 <label for="salary">Annual Salary (£)</label>
                 <input type="number" id="salary" required min="0" step="0.01" placeholder="45000">
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your gross annual salary - used to calculate monthly salary for compensation payments.</p>
+                <p style="margin-top: 8px; font-size: 12px; color: #666;"><strong>Permanent Pensionable Allowances:</strong> This should be the annual amount of ALL pensionable allowances. If you are part-time, enter your full-time equivalent allowance. If you are unsure whether your allowance is pensionable, refer to the letter confirming receipt of the allowance or the Allowances section of the UKRI Pay and Reward Policy. If neither gives you the answer, you may need to raise a helpdesk request in Fusion (go to "my Help", then "create request").</p>
                 <div id="payBandLoading" style="font-size: 13px; color: #666; font-style: italic;">Loading UKRI pay bands...</div>
                 <div id="payBandError" style="display: none; font-size: 13px; color: #dc3545; margin-top: 8px;">Failed to load UKRI pay bands. Please enter salary manually.</div>
                 <div id="payBandSelector"></div>
@@ -331,6 +332,13 @@
                 <label for="yearsService">Years of Service (at time of exit)</label>
                 <input type="number" id="yearsService" required min="0" max="50" step="0.0001" placeholder="10.2500">
                 <p style="margin-top: 5px; font-size: 13px; color: #666;">Your pensionable service (can include part years, e.g. 10.2500 for 10 years and 3 months).</p>
+                <div style="margin-top: 8px; font-size: 12px; color: #666; line-height: 1.6;">
+                    <p style="margin: 0 0 6px 0;"><strong>Years of Service for Compensation:</strong></p>
+                    <p style="margin: 0 0 6px 0;">This is the service your compensation will be based on. It excludes transferred in service, added years, added pension etc as laid out in the CSCS calculator guidance. It also excludes all unpaid leave.</p>
+                    <p style="margin: 0 0 6px 0;"><strong>Example:</strong> If you joined STFC on 1 April 2016 and leave on 28 February 2026, your length of service will be 9 years and 334 days.</p>
+                    <p style="margin: 0 0 6px 0;"><strong>Full-time Employees:</strong> Enter your length of service in years and days using four decimal places (dividing days by 365) = 9.9150.</p>
+                    <p style="margin: 0;"><strong>Part-time Employees:</strong> Service is worked out the same way but uses actual hours worked divided by the full-time equivalent hours. If you work 20 hours per week and your full-time equivalent is 37, your service for compensation would be 9.9150 × 20 / 37 = 5.3594.</p>
+                </div>
             </div>
 
             <div class="form-group">
